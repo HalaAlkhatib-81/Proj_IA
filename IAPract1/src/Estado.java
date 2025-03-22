@@ -1,7 +1,7 @@
 import IA.Red.*;
 import java.util.*;
 
-public class Estado {
+public class Estado{
     /* ===================== ATRIBUTOS ===================== */
     // Constantes para movimientos en un tablero 2D (no se usan en el código actual, pero pueden ser útiles)
     private static final int[] X = {-1, 0, 1, 0};
