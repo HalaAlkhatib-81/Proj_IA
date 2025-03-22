@@ -28,19 +28,19 @@ public class Estado {
     /**
      * Constructor de copia.
      */
-    Estado(Estado a) {
-        this.conexiones = Arrays.copyOf(a.conexiones, a.conexiones.length);
-        this.capacidadRestante = Arrays.copyOf(a.capacidadRestante, a.capacidadRestante.length);
-        this.contador_conexiones = Arrays.copyOf(a.contador_conexiones, a.contador_conexiones.length);
+    Estado(Estado e) {
+        this.conexiones = Arrays.copyOf(e.conexiones, e.conexiones.length);
+        this.capacidadRestante = Arrays.copyOf(e.capacidadRestante, e.capacidadRestante.length);
+        this.contador_conexiones = Arrays.copyOf(e.contador_conexiones, e.contador_conexiones.length);
         this.tablero = new int[100][100];
         for (int i = 0; i < 100; i++) {
-            System.arraycopy(a.tablero[i], 0, this.tablero[i], 0, 100);
+            System.arraycopy(e.tablero[i], 0, this.tablero[i], 0, 100);
         }
-        this.coste = a.coste;
-        this.info = a.info;
+        this.coste = e.coste;
+        this.info = e.info;
     }
 
-    Estado(boolean greedy) {
+    Estado(boolean avaricioso) {
         conexiones = new int[sensor.size()];
         Arrays.fill(conexiones, -1);
 
@@ -52,7 +52,7 @@ public class Estado {
             capacidadRestante[i] = sensor.get(i).getCapacidad()*2;
         }
         for(int i = sensor.size(); i < sensor.size() + centros.size(); ++i) {
-            capacidadRestante[i] = 125;
+            capacidadRestante[i] = 25;
         }
 
         this.tablero = new int[100][100];
@@ -61,11 +61,11 @@ public class Estado {
         }
         inicializar_tablero();
 
-        if (greedy) estado_inicial_cercania();
+        if (avaricioso) estado_inicial_cercania();
         else estado_inicial_random();
 
         if (!solucionInicialValida()) {
-            System.out.println("Solucion invalida!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.out.println("Solucion no valida!");
             System.exit(0);
         }
     }
@@ -82,6 +82,14 @@ public class Estado {
             tablero[centros.get(j).getCoordX()][centros.get(j).getCoordY()] = j + sensor.size();
         }
     }
+
+    public double getCoste(){
+        return coste;
+    }
+    public double getInfoPerdida(){
+        return info;
+    }
+
 
     /* ===================== VERIFICACIONES Y UTILIDADES ===================== */
     private boolean es_sensor(int sensorId) {

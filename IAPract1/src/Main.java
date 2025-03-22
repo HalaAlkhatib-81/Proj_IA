@@ -3,26 +3,28 @@ import aima.search.framework.*;
 import aima.search.informed.HillClimbingSearch;
 import aima.search.informed.SimulatedAnnealingSearch;
 
+import IA.Red.*;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Introduce numero de sensores: ");
+        System.out.print("Num de sensores: ");
         int nsensores = scanner.nextInt();
 
         System.out.print("Introduce numero de centros de datos: ");
         int ncentros = scanner.nextInt();
 
-        System.out.print("¿Qué algoritmo quieres usar? [1 para Hill Climbing / 0 para Simulated Annealing]: ");
-        boolean hillClimb = (scanner.nextInt() == 1);
+        System.out.print("¿Qué algoritmo quieres usar? [1= Hill Climbing / 0= Simulated Annealing]: ");
+        boolean hC = (scanner.nextInt() == 1);
 
         int steps = 10000, stiter = 1000, k = 25;
         double lambda = 0.01;
-        if (!hillClimb) {
+        if (!hC) {
             System.out.println("Introduce los parámetros de Simulated Annealing:");
-            System.out.print("Steps [10000 por defecto]: ");
+            System.out.print("Num Steps [10000 por defecto]: ");
             steps = scanner.nextInt();
             System.out.print("Stiter [1000 por defecto]: ");
             stiter = scanner.nextInt();
@@ -32,14 +34,51 @@ public class Main {
             lambda = scanner.nextDouble();
         }
 
+        int semilla;
+        System.out.print("¿Semilla random? [1 = Si, 0 = No]: ");
+        if(scanner.nextInt() == 1){
+            Random r = new Random();
+            semilla = r.nextInt();
+            System.out.println("La semilla random es: " + semilla);
+        }
+        else{
+            System.out.print("Introduce la semilla: ");
+            semilla = scanner.nextInt();
+        }
         System.out.print("¿Qué estrategia para la solución inicial? [1 para avariciosa / 0 para aleatoria]: ");
         boolean greedy = (scanner.nextInt() == 1);
 
-        Estado estadoInicial = new Estado(greedy);
+        System.out.print("Que funcion heuristica quieres usar?[1 = solo coste/ 0 = coste + info");
+        boolean infoPerdidaIncluida = (scanner.nextInt() == 1);
+
+        double a = 0.1, b = 0.2;
+        if(!infoPerdidaIncluida){
+            System.out.println("A continuación introduce el valor de A y el valor de B");
+            System.out.print("Valor a por defecto -> 0.1, Valor b por defecto = 0.2");
+            a = scanner.nextDouble();
+            b = scanner.nextDouble();
+        }
+        else{
+            a = 1;
+            b = 0;
+        }
 
         long startTime = System.nanoTime();
 
-        if (hillClimb) {
+        Sensores sensors = new Sensores(nsensores, semilla);
+        CentrosDatos centros = new CentrosDatos(ncentros, semilla);
+
+        Estado.sensor = sensors;
+        Estado.centros = centros;
+        Estado.a = a;
+        Estado.b = b;
+        if(greedy){
+            //(BORRAR DESPUÉS)aqui hay que poner algo, aunque no sé el que, mirar el otro github
+        }
+        Estado estadoInicial = new Estado(greedy);
+
+
+        if (hC) {
             ejecutarHillClimbing(estadoInicial);
         } else {
             ejecutarSimulatedAnnealing(estadoInicial, steps, stiter, k, lambda);
@@ -55,11 +94,12 @@ public class Main {
             RedesSuccessorFunction successorFunction = new RedesSuccessorFunction();
             RedesGoalTest goalTest = new RedesGoalTest();
             RedesHeuristicFunction heuristicFunction = new RedesHeuristicFunction();
-            Problem problem = new Problem(estado, successorFunction, goalTest, heuristicFunction);
+            Problem p = new Problem(estado, successorFunction, goalTest, heuristicFunction);
             Search search = new HillClimbingSearch();
-            SearchAgent agent = new SearchAgent(problem, search);
+            SearchAgent agent = new SearchAgent(p, search);
 
             imprimirResultados(agent);
+            //imprimirIntrumentacion
             Estado solucion = (Estado) search.getGoalState();
             System.out.println("\nSolución Final: " + solucion);
         } catch (Exception e) {
@@ -67,15 +107,15 @@ public class Main {
         }
     }
 
-    private static void ejecutarSimulatedAnnealing(Estado estado, int steps, int stiter, int k, double lambda) {
+    private static void ejecutarSimulatedAnnealing(Estado es, int steps, int stiter, int k, double lambda) {
         System.out.println("\nEjecutando Simulated Annealing...");
         try {
             RedesSuccessorFunctionSA successorFunction = new RedesSuccessorFunctionSA();
             RedesGoalTest goalTest = new RedesGoalTest();
             RedesHeuristicFunction heuristicFunction = new RedesHeuristicFunction();
-            Problem problem = new Problem(estado, successorFunction, goalTest, heuristicFunction);
+            Problem p = new Problem(es, successorFunction, goalTest, heuristicFunction);
             Search search = new SimulatedAnnealingSearch(steps, stiter, k, lambda);
-            SearchAgent agent = new SearchAgent(problem, search);
+            SearchAgent agent = new SearchAgent(p, search);
 
             imprimirResultados(agent);
             Estado solucion = (Estado) search.getGoalState();
@@ -95,4 +135,5 @@ public class Main {
             System.out.println(key + " : " + properties.getProperty((String) key));
         }
     }
+
 }
