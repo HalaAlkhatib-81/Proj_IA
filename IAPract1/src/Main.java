@@ -72,9 +72,8 @@ public class Main {
         Estado.centros = centros;
         Estado.a = a;
         Estado.b = b;
-        if(greedy){
-            //(BORRAR DESPUÉS)aqui hay que poner algo, aunque no sé el que, mirar el otro github
-        }
+ 
+
         Estado estadoInicial = new Estado(greedy);
 
 
