@@ -14,7 +14,7 @@ public class RedesSuccessorFunction implements SuccessorFunction{
             for (int j =  1; j < sensor.size(); ++j) {
                 Estado newState = new Estado(estadoActual);
                 if (newState.swap(i, j)) {
-                    System.out.println("SWAP" + i + " " + j);
+                    System.out.println("SWAP " + i + " " + j + "");
                     String S = ("INTERCAMBIO " + " " + i + " " + j + " " + newState.toString() + "\n");
                     retVal.add(new Successor(S, newState));
                 }
@@ -37,6 +37,7 @@ public class RedesSuccessorFunction implements SuccessorFunction{
                 }
             }
         }
+        System.out.println("NOUS " + retVal.size());
         return retVal;
     }
 }

@@ -273,7 +273,7 @@ public class Estado{
     /* ===================== OPERADORES DE BÚSQUEDA LOCAL ===================== */
     //operador1: intercambio de conexiones entre dos sensores
     public boolean swap(int id1, int id2) {
-        if (!es_sensor(id1) || !es_sensor(id2) || conexiones[id1] == -1 || conexiones[id2] == -1) return false;
+        if (!es_sensor(id1) || !es_sensor(id2) || conexiones[id1] == -1 || conexiones[id2] == -1 || id1 == id2) return false;
         else if (conexiones[id1] == id2 || conexiones[id2] == id1 || !es_valido_sensor(id1) || !es_valido_sensor(id2) ) return false;
         int conexion1 = conexiones[id1];
         int conexion2 = conexiones[id2];
@@ -300,7 +300,7 @@ public class Estado{
 
     //operador2: mueve la conexión de un sensor a otro sensor o centro
     public boolean moverConexion(int sensorId, int nuevoDestino) {
-        if (!es_sensor(sensorId) || conexiones[sensorId] == -1 || sensorId == nuevoDestino) return false;
+        if (!es_sensor(sensorId) || conexiones[sensorId] == -1 || sensorId == nuevoDestino || nuevoDestino == conexiones[sensorId]) return false;
         if ((es_centro(nuevoDestino) && !es_valido_centros(nuevoDestino)) || (es_sensor(nuevoDestino) && !es_valido_sensor(nuevoDestino))) return false;
 
         int conexionAntigua = conexiones[sensorId];
@@ -397,12 +397,12 @@ public class Estado{
                 }
             }
         }
+        System.out.println(sensor.get(0).getCapacidad());
     }
 
     /* ===================== HEURÍSTICA ===================== */
     public double getHeuristica() {
         double costeTotal = 0;
-        double infoTotal = 0;
         double inforeal = 0;
 
         for (int i = 0; i < conexiones.length; i++) {
@@ -413,17 +413,18 @@ public class Estado{
 
 
                 double volumenCapturado = sensor.get(i).getCapacidad();
+                System.out.println();
                 System.out.println("sensord con id = " + i + " envia " + sensor.get(i).getCapacidad() + " a al id " + conexiones[i]);
                 costeTotal += Math.pow(distancia, 2) * volumenCapturado;
-                infoTotal += volumenCapturado;
             }
         }
         for(int i = sensor.size(); i < sensor.size()+ centros.size(); i++) {
             inforeal += capacidadRestante[i];
         }
-        this.coste = costeTotal;
-        this.info = inforeal;
 
+        this.coste = costeTotal;
+        this.info = centros.size()*125 - inforeal;
+        System.out.println("info= " + sensor.get(0).getCapacidad() + " coste = " + this.coste);
         return a*coste - b*info;
 
     }
