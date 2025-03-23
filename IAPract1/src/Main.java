@@ -66,13 +66,13 @@ public class Main {
         long startTime = System.nanoTime();
 
         Sensores sensors = new Sensores(nsensores, semilla);
-        CentrosDatos centros = new CentrosDatos(ncentros, semilla);
+        CentrosDatos centros = new CentrosDatos(ncentros, semilla+1);
 
         Estado.sensor = sensors;
         Estado.centros = centros;
         Estado.a = a;
         Estado.b = b;
- 
+
 
         Estado estadoInicial = new Estado(greedy);
 

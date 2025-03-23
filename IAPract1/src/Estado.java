@@ -101,11 +101,11 @@ public class Estado{
     }
 
     private boolean es_valido_sensor(int sensorId) {
-        return contador_conexiones[sensorId] <= 2 && conexion_con_centro(sensorId);
+        return contador_conexiones[sensorId] < 3 && conexion_con_centro(sensorId);
     }
 
     private boolean es_valido_centros(int centroId) {
-        return contador_conexiones[centroId] <= 24;
+        return contador_conexiones[centroId] < 25;
     }
 
     public boolean conexion_con_centro(int sensorId) {
@@ -179,17 +179,18 @@ public class Estado{
     }
 
     private void actualizar_capacidadRestante_centro(int sensorId, int centroId) {
-        if (sensor.get(sensorId).getCapacidad() > capacidadRestante[centroId]) {
+        /*if (sensor.get(sensorId).getCapacidad() > capacidadRestante[centroId]) {
             //info_perdida += (int) sensor.get(sensorId).getCapacidad() - (int) capacidadRestante[centroId];
             capacidadRestante[centroId] = 0;
         }
-        else capacidadRestante[centroId] -= sensor.get(sensorId).getCapacidad();
+        else capacidadRestante[centroId] -= sensor.get(sensorId).getCapacidad();*/
+        capacidadRestante[centroId] = Math.max(0.0, capacidadRestante[centroId] - sensor.get(sensorId).getCapacidad());
     }
 
     //el 1 le envía al 2
     private void actualizar_capacidadRestante_sensor(int sensorId1, int sensorId2) {
         if (sensor.get(sensorId1).getCapacidad() > capacidadRestante[sensorId2]) {
-            //info_perdida += (int) sensor.get(sensorId1).getCapacidad() - (int) capacidadRestante[sensorId2];
+            info += (int) sensor.get(sensorId1).getCapacidad() - (int) capacidadRestante[sensorId2];
             capacidadRestante[sensorId2] = 0;
             sensor.get(sensorId2).setCapacidad((int) sensor.get(sensorId2).getCapacidad() + (int) capacidadRestante[sensorId2]);
         }
@@ -216,6 +217,7 @@ public class Estado{
 
         conexiones[id1] = id2;
         contador_conexiones[id2]++;
+        //capacidadRestante[id2] -= sensor.get(id1).getCapacidad();
     }
 
     public void romper_conexion (int id1) {
