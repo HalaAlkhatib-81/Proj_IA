@@ -14,6 +14,7 @@ public class RedesSuccessorFunction implements SuccessorFunction{
             for (int j =  1; j < sensor.size(); ++j) {
                 Estado newState = new Estado(estadoActual);
                 if (newState.swap(i, j)) {
+                    System.out.println("SWAP" + i + " " + j);
                     String S = ("INTERCAMBIO " + " " + i + " " + j + " " + newState.toString() + "\n");
                     retVal.add(new Successor(S, newState));
                 }
@@ -26,6 +27,7 @@ public class RedesSuccessorFunction implements SuccessorFunction{
                     Estado newState = new Estado(estadoActual);
                     if (newState.moverConexion(i, j)) {
                         String S;
+                        System.out.println("MOVER" + i + " " + j);
                         if (j >= sensor.size()) {
                             S = "MOVIDA conexión: " + i + " al centro: " + (j - sensor.size()) + " " + newState.toString() + "\n";
                         }

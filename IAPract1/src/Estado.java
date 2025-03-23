@@ -401,6 +401,7 @@ public class Estado{
     public double getHeuristica() {
         double costeTotal = 0;
         double infoTotal = 0;
+        double inforeal = 0;
 
         for (int i = 0; i < conexiones.length; i++) {
             if (conexiones[i] != -1) { // Si el sensor i tiene conexión
@@ -410,23 +411,16 @@ public class Estado{
 
 
                 double volumenCapturado = sensor.get(i).getCapacidad();
-                double volumenTransmitido = Math.min(volumenCapturado * 3, capacidadRestante[i]); // Un sensor transmite como máximo 3 veces su capacidad
-                double capacidadDestino;
-                if (es_centro(conexiones[i])) capacidadDestino = 125;
-                else capacidadDestino = sensor.get(conexiones[i]).getCapacidad() * 2;
-
-                // Si el volumen transmitido supera la capacidad del destino, se pierde info
-                if (volumenTransmitido > capacidadDestino) {
-                    volumenTransmitido = capacidadDestino;
-                }
-
-                costeTotal += Math.pow(distancia, 2) * volumenTransmitido;
-                infoTotal += volumenTransmitido;
+                System.out.println("sensord con id = " + i + " envia " + sensor.get(i).getCapacidad() + " a al id " + conexiones[i]);
+                costeTotal += Math.pow(distancia, 2) * volumenCapturado;
+                infoTotal += volumenCapturado;
             }
         }
-
+        for(int i = sensor.size(); i < sensor.size()+ centros.size(); i++) {
+            inforeal += capacidadRestante[i];
+        }
         this.coste = costeTotal;
-        this.info = infoTotal;
+        this.info = inforeal;
 
         return a*coste - b*info;
 
