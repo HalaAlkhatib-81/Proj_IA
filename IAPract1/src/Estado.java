@@ -97,7 +97,7 @@ public class Estado{
     }
 
     private boolean es_centro(int centroId) {
-        return centroId >= sensor.size() && centroId < conexiones.length;
+        return centroId >= sensor.size() && centroId < sensor.size()+centros.size();
     }
 
     private boolean es_valido_sensor(int sensorId) {
@@ -115,8 +115,10 @@ public class Estado{
     }
 
     private boolean dfs(int sensorId, boolean[] visitado) {
-        if (es_centro(sensorId)) return true;
-        if (!visitado[sensorId]) {
+        if (es_centro(conexiones[sensorId])) {
+            return true;
+        }
+        else if (!visitado[sensorId]) {
             visitado[sensorId] = true;
             int v = conexiones[sensorId];
             return v != -1 && dfs(v, visitado); //si v = -1 puede que ese sensor no tenga ninguna conexión
@@ -208,7 +210,8 @@ public class Estado{
     }
 
     public void crear_conexion (int id1, int id2) {
-        if (es_centro(id1) || conexiones[id1] == id2 || !es_valido_sensor(id2)) return;
+        if (es_centro(id1) || conexiones[id1] == id2) return;
+        if(!es_centro(id2) && !es_valido_sensor(id2)) return;
         if (conexiones[id1] != -1) romper_conexion(id1);
 
         conexiones[id1] = id2;
@@ -262,7 +265,6 @@ public class Estado{
                 return false;
             }
         }
-
         return true; // Si todas las verificaciones se cumplen, la solución inicial es válida.
     }
 
@@ -270,17 +272,15 @@ public class Estado{
     //operador1: intercambio de conexiones entre dos sensores
     public boolean swap(int id1, int id2) {
         if (!es_sensor(id1) || !es_sensor(id2) || conexiones[id1] == -1 || conexiones[id2] == -1) return false;
-
+        else if (conexiones[id1] == id2 || conexiones[id2] == id1 || !es_valido_sensor(id1) || !es_valido_sensor(id2) ) return false;
         int conexion1 = conexiones[id1];
         int conexion2 = conexiones[id2];
 
-        if (conexion1 == id2 || conexion2 == id1 || !es_valido_sensor(conexion1) || !es_valido_sensor(conexion2) ) return false;
-
         capacidadRestante[conexion1] += sensor.get(id1).getCapacidad();
-        sensor.get(conexion1).setCapacidad((int) (sensor.get(conexion1).getCapacidad() - (int) sensor.get(id1).getCapacidad()));
+        if(!es_centro(conexion1)) sensor.get(conexion1).setCapacidad((int) (sensor.get(conexion1).getCapacidad() - (int) sensor.get(id1).getCapacidad()));
 
         capacidadRestante[conexion2] += sensor.get(id2).getCapacidad();
-        sensor.get(conexion2).setCapacidad((int) (sensor.get(conexion2).getCapacidad() - (int) sensor.get(id2).getCapacidad()));
+        if(!es_centro(conexion2)) sensor.get(conexion2).setCapacidad((int) (sensor.get(conexion2).getCapacidad() - (int) sensor.get(id2).getCapacidad()));
 
         romper_conexion(id1);
         romper_conexion(id2);
@@ -288,8 +288,10 @@ public class Estado{
         crear_conexion(id1, conexion2);
         crear_conexion(id2, conexion1);
 
-        actualizar_capacidadRestante_sensor(id1, conexion2);
-        actualizar_capacidadRestante_sensor(id2, conexion1);
+        if(!es_centro(conexion2)) actualizar_capacidadRestante_sensor(id1, conexion2);
+        else actualizar_conexiones_centro(id1, conexion2);
+        if(!es_centro(conexion1)) actualizar_capacidadRestante_sensor(id2, conexion1);
+        else actualizar_conexiones_centro(id2,conexion1);
 
         return true;
     }
@@ -301,7 +303,7 @@ public class Estado{
 
         int conexionAntigua = conexiones[sensorId];
         capacidadRestante[conexionAntigua] += sensor.get(sensorId).getCapacidad();
-        sensor.get(conexionAntigua).setCapacidad((int) (sensor.get(conexionAntigua).getCapacidad() - (int) sensor.get(sensorId).getCapacidad()));
+        if(es_sensor(conexionAntigua)) sensor.get(conexionAntigua).setCapacidad((int) (sensor.get(conexionAntigua).getCapacidad() - (int) sensor.get(sensorId).getCapacidad()));
 
         romper_conexion(sensorId);
         crear_conexion(sensorId, nuevoDestino);
@@ -402,7 +404,11 @@ public class Estado{
 
         for (int i = 0; i < conexiones.length; i++) {
             if (conexiones[i] != -1) { // Si el sensor i tiene conexión
-                double distancia = dist(i, conexiones[i], es_centro(conexiones[i]));
+                double distancia;
+                if(es_centro(conexiones[i])) distancia = dist(i, conexiones[i]-sensor.size(),true );
+                else distancia = dist(i, conexiones[i],false );
+
+
                 double volumenCapturado = sensor.get(i).getCapacidad();
                 double volumenTransmitido = Math.min(volumenCapturado * 3, capacidadRestante[i]); // Un sensor transmite como máximo 3 veces su capacidad
                 double capacidadDestino;
