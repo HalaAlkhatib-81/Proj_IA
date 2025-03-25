@@ -9,6 +9,7 @@ import IA.Red.*;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
+
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Num de sensores: ");
@@ -59,22 +60,21 @@ public class Main {
             b = scanner.nextDouble();
         }
         else{
-            a = 1;
-            b = 0;
+            a = 0.6;
+            b = 0.4;
         }
 
         long startTime = System.nanoTime();
 
-        Sensores sensors = new Sensores(nsensores, semilla);
-        CentrosDatos centros = new CentrosDatos(ncentros, semilla+1);
+        Sensores sensors = new Sensores(nsensores, 1234);
+        CentrosDatos centros = new CentrosDatos(ncentros, 4321);
 
-        Estado.sensor = sensors;
-        Estado.centros = centros;
+
         Estado.a = a;
         Estado.b = b;
 
 
-        Estado estadoInicial = new Estado(greedy);
+        Estado estadoInicial = new Estado(greedy, sensors, centros);
 
 
         if (hC) {

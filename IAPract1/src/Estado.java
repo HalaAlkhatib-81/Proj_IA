@@ -8,8 +8,8 @@ public class Estado{
     private static final int[] Y = {0, 1, 0, -1};
 
     // Sensores y Centros de Datos
-    public static Sensores sensor;
-    public static CentrosDatos centros;
+    public  Sensores sensor;
+    public  CentrosDatos centros;
 
     // Información de las conexiones
     private int[] conexiones;                // Indica a qué nodo está conectado cada sensor
@@ -29,6 +29,8 @@ public class Estado{
      * Constructor de copia.
      */
     Estado(Estado e) {
+        this.sensor = e.sensor;      // O bien, realizar un deep copy si es necesario
+        this.centros = e.centros;    // O deep copy
         this.conexiones = Arrays.copyOf(e.conexiones, e.conexiones.length);
         this.capacidadRestante = Arrays.copyOf(e.capacidadRestante, e.capacidadRestante.length);
         this.contador_conexiones = Arrays.copyOf(e.contador_conexiones, e.contador_conexiones.length);
@@ -40,7 +42,26 @@ public class Estado{
         this.info = e.info;
     }
 
-    Estado(boolean avaricioso) {
+    Estado(Estado e,Sensores sensor, CentrosDatos centros) {
+        this.sensor = new Sensores(0, 0);
+        for (Sensor s : sensor) {
+            this.sensor.add(new Sensor((int) s.getCapacidad(), s.getCoordX(), s.getCoordY()));
+        }
+        this.centros = centros; // si centros no se modifica, se puede compartir
+        this.conexiones = Arrays.copyOf(e.conexiones, e.conexiones.length);
+        this.capacidadRestante = Arrays.copyOf(e.capacidadRestante, e.capacidadRestante.length);
+        this.contador_conexiones = Arrays.copyOf(e.contador_conexiones, e.contador_conexiones.length);
+        this.tablero = new int[100][100];
+        for (int i = 0; i < 100; i++) {
+            System.arraycopy(e.tablero[i], 0, this.tablero[i], 0, 100);
+        }
+        this.coste = e.coste;
+        this.info = e.info;
+    }
+
+    Estado(boolean avaricioso,Sensores sensor, CentrosDatos centros) {
+        this.sensor = sensor;
+        this.centros = centros;
         conexiones = new int[sensor.size()];
         Arrays.fill(conexiones, -1);
 
@@ -52,7 +73,7 @@ public class Estado{
             capacidadRestante[i] = sensor.get(i).getCapacidad()*2;
         }
         for(int i = sensor.size(); i < sensor.size() + centros.size(); ++i) {
-            capacidadRestante[i] = 25;
+            capacidadRestante[i] = 150;
         }
 
         this.tablero = new int[100][100];
@@ -274,7 +295,7 @@ public class Estado{
     //operador1: intercambio de conexiones entre dos sensores
     public boolean swap(int id1, int id2) {
         if (!es_sensor(id1) || !es_sensor(id2) || conexiones[id1] == -1 || conexiones[id2] == -1 || id1 == id2) return false;
-        else if (conexiones[id1] == id2 || conexiones[id2] == id1 || !es_valido_sensor(id1) || !es_valido_sensor(id2) ) return false;
+        else if (conexiones[id1] == id2 || conexiones[id2] == id1 || !es_valido_sensor(id1) || !es_valido_sensor(id2) || conexiones[id1] == conexiones[id2] ) return false;
         int conexion1 = conexiones[id1];
         int conexion2 = conexiones[id2];
 
@@ -404,7 +425,8 @@ public class Estado{
     public double getHeuristica() {
         double costeTotal = 0;
         double inforeal = 0;
-
+        this.coste = 0;
+        this.info = 0;
         for (int i = 0; i < conexiones.length; i++) {
             if (conexiones[i] != -1) { // Si el sensor i tiene conexión
                 double distancia;
@@ -423,7 +445,7 @@ public class Estado{
         }
 
         this.coste = costeTotal;
-        this.info = centros.size()*125 - inforeal;
+        this.info = centros.size()*150 - inforeal;
         System.out.println("info= " + sensor.get(0).getCapacidad() + " coste = " + this.coste);
         return a*coste - b*info;
 

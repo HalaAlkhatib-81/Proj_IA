@@ -9,8 +9,8 @@ public class RedesSuccessorFunctionSA implements SuccessorFunction{
         ArrayList<Successor> retVal = new ArrayList();
         Estado hijo = (Estado) a;
         Random random = new Random();
-        int nsensores = Estado.sensor.size();
-        int ncentros = Estado.centros.size();
+        int nsensores = hijo.sensor.size();
+        int ncentros = hijo.centros.size();
 
         int factorRamificacionMoverConexion = nsensores*ncentros;
         int factorRamificacionSwap = nsensores*nsensores;
