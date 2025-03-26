@@ -35,16 +35,21 @@ public class Main {
             lambda = scanner.nextDouble();
         }
 
-        int semilla;
-        System.out.print("¿Semilla random? [1 = Si, 0 = No]: ");
+        int semillaSensores;
+        int semillaCentros;
+        System.out.print("¿Semillas random? [1 = Si, 0 = No]: ");
         if(scanner.nextInt() == 1){
             Random r = new Random();
-            semilla = r.nextInt();
-            System.out.println("La semilla random es: " + semilla);
+            semillaSensores = r.nextInt();
+            System.out.println("La semilla random para los sensores es: " + semillaSensores);
+            semillaCentros = r.nextInt();
+            System.out.println("La semilla random para los Centros es: " + semillaCentros);
         }
         else{
-            System.out.print("Introduce la semilla: ");
-            semilla = scanner.nextInt();
+            System.out.print("Introduce la semilla para los sensores: ");
+            semillaSensores = scanner.nextInt();
+            System.out.print("Introduce la semilla para los centros: ");
+            semillaCentros = scanner.nextInt();
         }
         System.out.print("¿Qué estrategia para la solución inicial? [1 para avariciosa / 0 para aleatoria]: ");
         boolean greedy = (scanner.nextInt() == 1);
@@ -66,14 +71,35 @@ public class Main {
 
         long startTime = System.nanoTime();
 
-        Sensores sensors = new Sensores(nsensores, 1234);
-        CentrosDatos centros = new CentrosDatos(ncentros, 4321);
+        semillaSensores = 1234;
+        semillaCentros = 4321;
 
+        Sensores sensors = new Sensores(nsensores, semillaSensores);
+        CentrosDatos centros = new CentrosDatos(ncentros, semillaCentros);
 
         Estado.a = a;
         Estado.b = b;
 
+        /**
+         * Código de Alex: Borrar a partir de aquí:
+         */
+        //Actualizar las variables static en base al input del usuario
+        EstadoTest.a = a;
+        EstadoTest.b = b;
+        EstadoTest.semillaSensores = semillaSensores;
+        EstadoTest.semillaCentros = semillaCentros;
 
+        /*
+        Generar estado inicial: si Greedy == True, se genera usando
+        la estrategia de cercanía. En caso contrario, se decide el
+        próximo paso aleatoriamente.
+         */
+        EstadoTest estadoInicialTest = new EstadoTest(nsensores, ncentros).generarEstadoInicial(greedy);
+
+
+        /**
+         * Borrar hasta aquí
+         */
         Estado estadoInicial = new Estado(greedy, sensors, centros);
 
 
