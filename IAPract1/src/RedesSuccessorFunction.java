@@ -53,19 +53,27 @@ public class RedesSuccessorFunction implements SuccessorFunction{
     */
 
     public List<Successor> getSuccessors(Object a) {
-        System.out.println("-------------------------------------------------------------------------");
-        System.out.println("getSuccessors:");
-        System.out.println("-------------------------------------------------------------------------");
         ArrayList<Successor> retVal = new ArrayList();
         EstadoTest estadoActual = (EstadoTest) a;
+        System.out.println("-------------------------------------------------------------------------");
+        System.out.println("GENERANDO SUCESORES DE:");
+        System.out.println();
+        estadoActual.imprimirConexiones();
+        System.out.println("-------------------------------------------------------------------------");
         int nSensores = estadoActual.getNumeroSensores();
         int nCentros = estadoActual.getNumeroCentros();
 
+        System.out.println("GENERANDO SUCESORES USANDO OPERADOR SWAP:");
         for (int i = 0; i < nSensores; i++) {
             for (int j = i + 1; j < nSensores; ++j) {
                 EstadoTest newState = estadoActual.clone();
+                System.out.println("Intentando aplicar operación: SWAP (" + i + " -> " + j + ")");
                 if (newState.swap(i, j)) {
-                    System.out.println("Generando estado sucesor a partir de operación: SWAP (" + i + " -> " + j + ")");
+                    System.out.println("SWAP aplicado con éxito");
+                    System.out.println();
+                    System.out.println("SUCESOR GENERADO:");
+                    newState.imprimirConexiones();
+                    System.out.println();
                     String S = ("INTERCAMBIO " + " " + i + " " + j + " " + newState.toString() + "\n");
                     retVal.add(new Successor(S, newState));
                 }
@@ -73,19 +81,22 @@ public class RedesSuccessorFunction implements SuccessorFunction{
         }
 
         for (int i = 0; i < nSensores; i++) {
-            for (int j = 0; j < nSensores + nCentros; ++j) { // Puede ser otro sensor o un centro
-                if (i != j) { // No puede moverse a sí mismo
-                    EstadoTest newState = estadoActual.clone();
-                    if (newState.moverConexion(i, j)) {
-                        newState.actualizarCapacidades();
-                        String S;
-                        System.out.println("Generando estado sucesor a partir de operación: MOVER (" + i + " -> " + j + ")");
-                        if (j >= nSensores) {
-                            S = "MOVIDA conexión: " + i + " al centro: " + (j - nSensores) + " " + newState.toString() + "\n";
-                        }
-                        else S = "MOVIDA conexión: " + i + " al sensor: " + j + " " + newState.toString() + "\n";
-                        retVal.add(new Successor(S, newState));
+            for (int j = i + 1; j < nSensores + nCentros; ++j) { // Puede ser otro sensor o un centro// No puede moverse a sí mismo
+                EstadoTest newState = estadoActual.clone();
+                System.out.println("Intentando aplicar operación: MOVE (" + i + " -> " + j + ")");
+                if (newState.moverConexion(i, j)) {
+                    //newState.actualizarCapacidades();
+                    String S;
+                    System.out.println("MOVE aplicado con éxito");
+                    System.out.println();
+                    System.out.println("SUCESOR GENERADO:");
+                    newState.imprimirConexiones();
+                    System.out.println();
+                    if (j >= nSensores) {
+                        S = "MOVIDA conexión: " + i + " al centro: " + (j - nSensores) + " " + newState.toString() + "\n";
                     }
+                    else S = "MOVIDA conexión: " + i + " al sensor: " + j + " " + newState.toString() + "\n";
+                    retVal.add(new Successor(S, newState));
                 }
             }
         }

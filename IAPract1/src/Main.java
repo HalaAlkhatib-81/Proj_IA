@@ -95,8 +95,15 @@ public class Main {
         próximo paso aleatoriamente.
          */
 
+        System.out.println("-------------------------------------------------------------------------");
+        System.out.println("GENERANDO ESTADO INICIAL:");
+        System.out.println("-------------------------------------------------------------------------");
+
         EstadoTest estadoInicialTest = new EstadoTest(nsensores, ncentros);
         estadoInicialTest.generarEstadoInicial(greedy);
+        System.out.println("ESTADO INICIAL GENERADO:");
+        System.out.println();
+        estadoInicialTest.imprimirConexiones();
 
         /**
          * Borrar hasta aquí

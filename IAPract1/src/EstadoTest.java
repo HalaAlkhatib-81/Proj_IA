@@ -323,7 +323,7 @@ public class EstadoTest implements Cloneable{
         double cantidadMaximaReceptora;
         if (es_centro(ID)) {
             cantidadMaximaReceptora = 150;
-        }else {
+        } else {
             cantidadMaximaReceptora = capacidadesIniciales[ID % 3] * 2;
         }
         double informacionRecibida = calcularInformacionRecibida(ID);
@@ -361,16 +361,19 @@ public class EstadoTest implements Cloneable{
     public boolean swap(int ID1, int ID2) {
         if (es_centro(ID1) || es_centro(ID2)) {
             System.out.println("No se ha podido realizar la operacion: SWAP (" + ID1 + " -> " + ID2 + ") debido a que uno de los IDs pertenece a un centro");
+            System.out.println();
             return false;
         }
         int conexionID1 = aQuienTransmito[ID1];
         int conexionID2 = aQuienTransmito[ID2];
         if (conexionID1 == -1 || conexionID2 == -1) {
             System.out.println("No se ha podido realizar la operacion: SWAP (" + ID1 + " -> " + ID2 + ") debido a que uno de los dos IDs no está conectado a nada");
+            System.out.println();
             return false;
         }
         if (conexionID1 == conexionID2) {
             System.out.println("No se ha podido realizar la operacion: SWAP (" + ID1 + " -> " + ID2 + ") debido a que los dos sensores están conectados a lo mismo");
+            System.out.println();
             return false;
         }
 
@@ -406,6 +409,7 @@ public class EstadoTest implements Cloneable{
     public boolean moverConexion(int ID, int nuevoDestino) {
         if (es_centro(ID)) {
             System.out.println("No se ha podido realizar la operacion: moverConexion (" + ID + " -> " + nuevoDestino + ") debido a que uno de los IDs pertenece a un centro");
+            System.out.println();
             return false;
         }
         if (es_centro(nuevoDestino)) {
@@ -479,8 +483,8 @@ public class EstadoTest implements Cloneable{
 
 
                 double volumenCapturado = sensores.get(i).getCapacidad();
-                System.out.println();
-                System.out.println("sensord con id = " + i + " envia " + sensores.get(i).getCapacidad() + " a al id " + aQuienTransmito[i]);
+                //System.out.println();
+                //System.out.println("sensord con id = " + i + " envia " + sensores.get(i).getCapacidad() + " a al id " + aQuienTransmito[i]);
                 costeTotal += Math.pow(distancia, 2) * volumenCapturado;
             }
         }
@@ -490,8 +494,28 @@ public class EstadoTest implements Cloneable{
 
         this.coste = costeTotal;
         this.info = centros.size()*150 - inforeal;
-        System.out.println("info= " + sensores.get(0).getCapacidad() + " coste = " + this.coste);
+        //System.out.println("info= " + sensores.get(0).getCapacidad() + " coste = " + this.coste);
         return a*coste - b*info;
+    }
+
+    public void imprimirConexiones() {
+        System.out.println("Conexiones:");
+        for (int i = 0; i < this.sensores.size(); ++i) {
+            String s = new String("El sensor " + i + " está conectado al ");
+            int receptor = aQuienTransmito[i];
+            if (es_centro(receptor)) {
+                s += "centro ";
+                s += receptor - this.sensores.size();
+            }
+            else {
+                s += "sensor ";
+                s += receptor;
+            }
+            double capacidadInicialSensor = capacidadesIniciales[i % 3];
+            double informacionTransmitida = capacidadInicialSensor + calcularInformacionRecibida(i);
+            s += (" y le transmite " + informacionTransmitida + " MB/s");
+            System.out.println(s);
+        }
     }
 
     @Override
