@@ -54,7 +54,7 @@ public class Main {
         System.out.print("¿Qué estrategia para la solución inicial? [1 para avariciosa / 0 para aleatoria]: ");
         boolean greedy = (scanner.nextInt() == 1);
 
-        System.out.print("Que funcion heuristica quieres usar?[1 = solo coste/ 0 = coste + info");
+        System.out.print("Que funcion heuristica quieres usar?[1 = solo coste/ 0 = coste + info]: ");
         boolean infoPerdidaIncluida = (scanner.nextInt() == 1);
 
         double a = 0.1, b = 0.2;
