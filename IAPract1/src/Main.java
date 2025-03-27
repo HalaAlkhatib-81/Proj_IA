@@ -133,7 +133,7 @@ public class Main {
 
             imprimirResultados(agent);
             //imprimirIntrumentacion
-            Estado solucion = (Estado) search.getGoalState();
+            EstadoTest solucion = (EstadoTest) search.getGoalState();
             System.out.println("\nSolución Final: " + solucion);
         } catch (Exception e) {
             e.printStackTrace();
