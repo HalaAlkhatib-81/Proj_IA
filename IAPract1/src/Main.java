@@ -89,13 +89,14 @@ public class Main {
         EstadoTest.semillaSensores = semillaSensores;
         EstadoTest.semillaCentros = semillaCentros;
 
-        /*
+        /**
         Generar estado inicial: si Greedy == True, se genera usando
         la estrategia de cercanía. En caso contrario, se decide el
         próximo paso aleatoriamente.
          */
-        EstadoTest estadoInicialTest = new EstadoTest(nsensores, ncentros).generarEstadoInicial(greedy);
 
+        EstadoTest estadoInicialTest = new EstadoTest(nsensores, ncentros);
+        estadoInicialTest.generarEstadoInicial(greedy);
 
         /**
          * Borrar hasta aquí
@@ -104,7 +105,7 @@ public class Main {
 
 
         if (hC) {
-            ejecutarHillClimbing(estadoInicial);
+            ejecutarHillClimbing(estadoInicialTest);
         } else {
             ejecutarSimulatedAnnealing(estadoInicial, steps, stiter, k, lambda);
         }
@@ -113,7 +114,7 @@ public class Main {
         System.out.println("Duración del algoritmo: " + (endTime - startTime) / 1000000 + " ms");
     }
 
-    private static void ejecutarHillClimbing(Estado estado) {
+    private static void ejecutarHillClimbing(EstadoTest estado) {
         System.out.println("\nEjecutando Hill Climbing...");
         try {
             RedesSuccessorFunction successorFunction = new RedesSuccessorFunction();

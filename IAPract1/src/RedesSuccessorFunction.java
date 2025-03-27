@@ -5,6 +5,7 @@ import IA.Red.*;
 import java.util.*;
 
 public class RedesSuccessorFunction implements SuccessorFunction{
+    /*
     public List<Successor> getSuccessors(Object a) {
         ArrayList<Successor> retVal = new ArrayList();
         Estado estadoActual = (Estado) a;
@@ -47,6 +48,50 @@ public class RedesSuccessorFunction implements SuccessorFunction{
             }
         }
         System.out.println("NOUS " + retVal.size());
+        return retVal;
+    }
+    */
+
+    public List<Successor> getSuccessors(Object a) {
+        System.out.println("-------------------------------------------------------------------------");
+        System.out.println("getSuccessors:");
+        System.out.println("-------------------------------------------------------------------------");
+        ArrayList<Successor> retVal = new ArrayList();
+        EstadoTest estadoActual = (EstadoTest) a;
+        int nSensores = estadoActual.getNumeroSensores();
+        int nCentros = estadoActual.getNumeroCentros();
+
+        for (int i = 0; i < nSensores; i++) {
+            for (int j = i + 1; j < nSensores; ++j) {
+                EstadoTest newState = estadoActual.clone();
+                if (newState.swap(i, j)) {
+                    System.out.println("Generando estado sucesor a partir de operación: SWAP (" + i + " -> " + j + ")");
+                    String S = ("INTERCAMBIO " + " " + i + " " + j + " " + newState.toString() + "\n");
+                    retVal.add(new Successor(S, newState));
+                }
+            }
+        }
+
+        for (int i = 0; i < nSensores; i++) {
+            for (int j = 0; j < nSensores + nCentros; ++j) { // Puede ser otro sensor o un centro
+                if (i != j) { // No puede moverse a sí mismo
+                    EstadoTest newState = estadoActual.clone();
+                    if (newState.moverConexion(i, j)) {
+                        newState.actualizarCapacidades();
+                        String S;
+                        System.out.println("Generando estado sucesor a partir de operación: MOVER (" + i + " -> " + j + ")");
+                        if (j >= nSensores) {
+                            S = "MOVIDA conexión: " + i + " al centro: " + (j - nSensores) + " " + newState.toString() + "\n";
+                        }
+                        else S = "MOVIDA conexión: " + i + " al sensor: " + j + " " + newState.toString() + "\n";
+                        retVal.add(new Successor(S, newState));
+                    }
+                }
+            }
+        }
+        System.out.println("-------------------------------------------------------------------------");
+        System.out.println("Se han creado un total de " + retVal.size() + " Estados sucesores nuevos");
+        System.out.println("-------------------------------------------------------------------------");
         return retVal;
     }
 }
