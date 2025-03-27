@@ -244,7 +244,7 @@ public class EstadoTest implements Cloneable{
 
         // Verificar restricción datos recibidos simultaneamente
         double capacidadMaximaReceptora = capacidadesIniciales[sensorId % 3] * 2;
-        double informacionRecibida = calcularInformacionRecibida(sensorId);
+        double informacionRecibida = calcularInformacionRecibida(sensorId, 0);
 
         // Verificar si centroId está indirectamente conectado a un centro
         boolean conectadoConCentro = existeCaminoValido(sensorId);
@@ -258,19 +258,24 @@ public class EstadoTest implements Cloneable{
 
         // Verificar restricción datos recibidos simultaneamente
         double capacidadMaximaReceptora = 150;
-        double informacionRecibida = calcularInformacionRecibida(centroId);
+        double informacionRecibida = calcularInformacionRecibida(centroId, 0);
 
         return (numeroConexionesActuales < 25 && (capacidadMaximaReceptora - informacionRecibida) > 0);
     }
 
-    private double calcularInformacionRecibida(int IDElemento) {
+    private double calcularInformacionRecibida(int IDElemento, int count) {
+        ++count;
+        int tonteria;
+        if(count == 3110)
+            tonteria = 0;
+        //System.out.println("Count calcularInformacionRecibida: " + count);
         double cantidadInformacionRecibida = 0;
         int nElementosConectados = this.quienMeTransmite.get(IDElemento).size();
         if (nElementosConectados > 0) {
             for (int i = 0; i < nElementosConectados; i++) {
                 int elementoConectado = this.quienMeTransmite.get(IDElemento).get(i);
                 double informacionTransmitida = capacidadesIniciales[elementoConectado % 3];
-                cantidadInformacionRecibida += (calcularInformacionRecibida(elementoConectado) + informacionTransmitida);
+                cantidadInformacionRecibida += (calcularInformacionRecibida(elementoConectado, count) + informacionTransmitida);
             }
         }
         return cantidadInformacionRecibida;
@@ -283,9 +288,10 @@ public class EstadoTest implements Cloneable{
     }
 
     private boolean conexionACentro(int ID, boolean[] visitado) {
-        if (es_centro(ID))
-            return true;
-
+        if(es_centro(ID)) return true;
+        if (es_centro(aQuienTransmito[ID])) return true;
+        if(aQuienTransmito[ID] == -1) return false;
+        if(visitado[aQuienTransmito[ID]] == true) return false;
         visitado[ID] = true;
         return conexionACentro(aQuienTransmito[ID], visitado);
     }
@@ -326,7 +332,7 @@ public class EstadoTest implements Cloneable{
         } else {
             cantidadMaximaReceptora = capacidadesIniciales[ID % 3] * 2;
         }
-        double informacionRecibida = calcularInformacionRecibida(ID);
+        double informacionRecibida = calcularInformacionRecibida(ID, 0);
         double nuevaCapacidad = Math.max(0, cantidadMaximaReceptora - informacionRecibida);
         System.out.println("Actualizada la capacidad restante de " + ID + ":");
         System.out.println("Nueva Capacidad: " + nuevaCapacidad);
@@ -407,22 +413,25 @@ public class EstadoTest implements Cloneable{
     }
 
     public boolean moverConexion(int ID, int nuevoDestino) {
+        int antiguoDestino = aQuienTransmito[ID];
         if (es_centro(ID)) {
             System.out.println("No se ha podido realizar la operacion: moverConexion (" + ID + " -> " + nuevoDestino + ") debido a que uno de los IDs pertenece a un centro");
             System.out.println();
             return false;
         }
+        desconectar(ID);
         if (es_centro(nuevoDestino)) {
-            if (!centroEsValido(nuevoDestino))
-                return false;
-        }
-        else {
-            if (!sensorEsValido(nuevoDestino)) {
+            if (!centroEsValido(nuevoDestino)) {
+                conectar(ID, antiguoDestino);
                 return false;
             }
         }
-        int antiguoDestino = aQuienTransmito[ID];
-        desconectar(ID);
+        else {
+            if (!sensorEsValido(nuevoDestino)) {
+                conectar(ID, antiguoDestino);
+                return false;
+            }
+        }
         conectar(ID, nuevoDestino);
         actualizarCapacidad(antiguoDestino);
         actualizarCapacidad(nuevoDestino);
@@ -498,7 +507,7 @@ public class EstadoTest implements Cloneable{
         return a*coste - b*info;
     }
 
-    public void imprimirConexiones() {
+    /*public void imprimirConexiones() {
         System.out.println("Conexiones:");
         for (int i = 0; i < this.sensores.size(); ++i) {
             String s = new String("El sensor " + i + " está conectado al ");
@@ -512,11 +521,11 @@ public class EstadoTest implements Cloneable{
                 s += receptor;
             }
             double capacidadInicialSensor = capacidadesIniciales[i % 3];
-            double informacionTransmitida = capacidadInicialSensor + calcularInformacionRecibida(i);
+            double informacionTransmitida = capacidadInicialSensor + calcularInformacionRecibida(i, 0);
             s += (" y le transmite " + informacionTransmitida + " MB/s");
             System.out.println(s);
         }
-    }
+    }*/
 
     @Override
     public String toString() {

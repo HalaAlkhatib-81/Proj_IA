@@ -103,7 +103,7 @@ public class Main {
         estadoInicialTest.generarEstadoInicial(greedy);
         System.out.println("ESTADO INICIAL GENERADO:");
         System.out.println();
-        estadoInicialTest.imprimirConexiones();
+        //estadoInicialTest.imprimirConexiones();
 
         /**
          * Borrar hasta aquí

@@ -58,7 +58,7 @@ public class RedesSuccessorFunction implements SuccessorFunction{
         System.out.println("-------------------------------------------------------------------------");
         System.out.println("GENERANDO SUCESORES DE:");
         System.out.println();
-        estadoActual.imprimirConexiones();
+        //estadoActual.imprimirConexiones();
         System.out.println("-------------------------------------------------------------------------");
         int nSensores = estadoActual.getNumeroSensores();
         int nCentros = estadoActual.getNumeroCentros();
@@ -72,16 +72,18 @@ public class RedesSuccessorFunction implements SuccessorFunction{
                     System.out.println("SWAP aplicado con éxito");
                     System.out.println();
                     System.out.println("SUCESOR GENERADO:");
-                    newState.imprimirConexiones();
+                    //newState.imprimirConexiones();
                     System.out.println();
                     String S = ("INTERCAMBIO " + " " + i + " " + j + " " + newState.toString() + "\n");
                     retVal.add(new Successor(S, newState));
                 }
             }
         }
-
+        int t;
         for (int i = 0; i < nSensores; i++) {
             for (int j = i + 1; j < nSensores + nCentros; ++j) { // Puede ser otro sensor o un centro// No puede moverse a sí mismo
+                if(i == 1 && j == 2)
+                    t = 0;
                 EstadoTest newState = estadoActual.clone();
                 System.out.println("Intentando aplicar operación: MOVE (" + i + " -> " + j + ")");
                 if (newState.moverConexion(i, j)) {
@@ -90,7 +92,7 @@ public class RedesSuccessorFunction implements SuccessorFunction{
                     System.out.println("MOVE aplicado con éxito");
                     System.out.println();
                     System.out.println("SUCESOR GENERADO:");
-                    newState.imprimirConexiones();
+                    //newState.imprimirConexiones();
                     System.out.println();
                     if (j >= nSensores) {
                         S = "MOVIDA conexión: " + i + " al centro: " + (j - nSensores) + " " + newState.toString() + "\n";
