@@ -55,15 +55,17 @@ public class RedesSuccessorFunction implements SuccessorFunction{
     public List<Successor> getSuccessors(Object a) {
         ArrayList<Successor> retVal = new ArrayList();
         EstadoTest estadoActual = (EstadoTest) a;
+        /*
         System.out.println("-------------------------------------------------------------------------");
         System.out.println("GENERANDO SUCESORES DE:");
         System.out.println();
-        //estadoActual.imprimirConexiones();
+        estadoActual.imprimirConexiones();
         System.out.println("-------------------------------------------------------------------------");
+        */
         int nSensores = estadoActual.getNumeroSensores();
         int nCentros = estadoActual.getNumeroCentros();
 
-        System.out.println("GENERANDO SUCESORES USANDO OPERADOR SWAP:");
+        //System.out.println("GENERANDO SUCESORES USANDO OPERADOR SWAP:");
         for (int i = 0; i < nSensores; i++) {
             for (int j = i + 1; j < nSensores; ++j) {
                 EstadoTest newState = estadoActual.clone();
