@@ -61,8 +61,8 @@ public class Main {
         if(!infoPerdidaIncluida){
             System.out.println("A continuación introduce el valor de A y el valor de B");
             System.out.print("Valor a por defecto -> 0.1, Valor b por defecto = 0.2");
-            a = scanner.nextDouble();
-            b = scanner.nextDouble();
+            a = 0.6;
+            b = 0.4;
         }
         else{
             a = 0.6;
@@ -70,9 +70,6 @@ public class Main {
         }
 
         long startTime = System.nanoTime();
-
-        semillaSensores = 1234;
-        semillaCentros = 4321;
 
         Sensores sensors = new Sensores(nsensores, semillaSensores);
         CentrosDatos centros = new CentrosDatos(ncentros, semillaCentros);

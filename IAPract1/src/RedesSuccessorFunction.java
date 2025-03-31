@@ -64,7 +64,6 @@ public class RedesSuccessorFunction implements SuccessorFunction{
         */
         int nSensores = estadoActual.getNumeroSensores();
         int nCentros = estadoActual.getNumeroCentros();
-
         //System.out.println("GENERANDO SUCESORES USANDO OPERADOR SWAP:");
         for (int i = 0; i < nSensores; i++) {
             for (int j = i + 1; j < nSensores; ++j) {
@@ -81,6 +80,7 @@ public class RedesSuccessorFunction implements SuccessorFunction{
                 }
             }
         }
+
         int t;
         for (int i = 0; i < nSensores; i++) {
             for (int j = i + 1; j < nSensores + nCentros; ++j) { // Puede ser otro sensor o un centro// No puede moverse a sí mismo
@@ -102,6 +102,7 @@ public class RedesSuccessorFunction implements SuccessorFunction{
                 }
             }
         }
+
         //System.out.println("-------------------------------------------------------------------------");
         //System.out.println("Se han creado un total de " + retVal.size() + " Estados sucesores nuevos");
         //System.out.println("-------------------------------------------------------------------------");

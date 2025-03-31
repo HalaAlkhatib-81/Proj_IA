@@ -582,8 +582,8 @@ public class EstadoTest implements Cloneable{
                 return false;
             }
         }
-        conectar(ID, nuevoDestino);
         actualizarCapacidad(antiguoDestino);
+        conectar(ID, nuevoDestino);
         actualizarCapacidad(nuevoDestino);
         return true;
     }
@@ -643,15 +643,25 @@ public class EstadoTest implements Cloneable{
                 else {
                     distancia = dist(i, aQuienTransmito[i],false);
                 }
-                double volumenCapturado = sensores.get(i).getCapacidad();
-                //System.out.println();
+                double volumenCapturado = calcularInformacionRecibida(i)+sensores.get(i).getCapacidad();
+                //System.out.println("volumenCapturado = " + volumenCapturado + " calcularInformacionRecibida = " +  calcularInformacionRecibida(i) +" getCapacidad = " + sensores.get(i).getCapacidad() );
                 //System.out.println("sensord con id = " + i + " envia " + sensores.get(i).getCapacidad() + " a al id " + aQuienTransmito[i]);
                 costeTotal += Math.pow(distancia, 2) * volumenCapturado;
             }
         }
         for(int i = sensores.size(); i < sensores.size()+ centros.size(); i++) {
             inforeal += capacidadRestante[i];
+
         }
+        System.out.println("INFO RECEIBIDA");
+        for(int i = sensores.size(); i < sensores.size()+ centros.size(); i++) {
+            System.out.println(calcularInformacionRecibida(i));
+        }
+        System.out.println("CAP RESTANTE");
+        for(int i = sensores.size(); i < sensores.size()+ centros.size(); i++) {
+            System.out.println(capacidadRestante[i]);
+        }
+        System.out.println("NOU");
 
         this.coste = costeTotal;
         this.info = centros.size()*150 - inforeal;
