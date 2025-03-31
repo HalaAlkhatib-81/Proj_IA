@@ -6,4 +6,12 @@ public class Pair<U, V> {
         this.first = first;
         this.second = second;
     }
+
+    public U getFirst() {
+        return first;
+    }
+
+    public V getSecond() {
+        return second;
+    }
 }

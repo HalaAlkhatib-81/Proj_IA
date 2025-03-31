@@ -69,13 +69,13 @@ public class RedesSuccessorFunction implements SuccessorFunction{
         for (int i = 0; i < nSensores; i++) {
             for (int j = i + 1; j < nSensores; ++j) {
                 EstadoTest newState = estadoActual.clone();
-                System.out.println("Intentando aplicar operación: SWAP (" + i + " -> " + j + ")");
+                //System.out.println("Intentando aplicar operación: SWAP (" + i + " -> " + j + ")");
                 if (newState.swap(i, j)) {
-                    System.out.println("SWAP aplicado con éxito");
-                    System.out.println();
-                    System.out.println("SUCESOR GENERADO:");
+                    //System.out.println("SWAP aplicado con éxito");
+                    //System.out.println();
+                    //System.out.println("SUCESOR GENERADO:");
                     //newState.imprimirConexiones();
-                    System.out.println();
+                    //System.out.println();
                     String S = ("INTERCAMBIO " + " " + i + " " + j + " " + newState.toString() + "\n");
                     retVal.add(new Successor(S, newState));
                 }
@@ -87,26 +87,26 @@ public class RedesSuccessorFunction implements SuccessorFunction{
                 if(i == 1 && j == 2)
                     t = 0;
                 EstadoTest newState = estadoActual.clone();
-                System.out.println("Intentando aplicar operación: MOVE (" + i + " -> " + j + ")");
+                //System.out.println("Intentando aplicar operación: MOVE (" + i + " -> " + j + ")");
                 if (newState.moverConexion(i, j)) {
                     //newState.actualizarCapacidades();
                     String S;
-                    System.out.println("MOVE aplicado con éxito");
-                    System.out.println();
-                    System.out.println("SUCESOR GENERADO:");
+                    //System.out.println("MOVE aplicado con éxito");
+                    //System.out.println();
+                    //System.out.println("SUCESOR GENERADO:");
                     //newState.imprimirConexiones();
-                    System.out.println();
+                    //System.out.println();
                     if (j >= nSensores) {
-                        S = "MOVIDA conexión: " + i + " al centro: " + (j - nSensores) + " " + newState.toString() + "\n";
+                        S = "MOVIDA conexion: " + i + " al centro: " + (j - nSensores) + " " + newState.toString() + "\n";
                     }
-                    else S = "MOVIDA conexión: " + i + " al sensor: " + j + " " + newState.toString() + "\n";
+                    else S = "MOVIDA conexion: " + i + " al sensor: " + j + " " + newState.toString() + "\n";
                     retVal.add(new Successor(S, newState));
                 }
             }
         }
-        System.out.println("-------------------------------------------------------------------------");
-        System.out.println("Se han creado un total de " + retVal.size() + " Estados sucesores nuevos");
-        System.out.println("-------------------------------------------------------------------------");
+        //System.out.println("-------------------------------------------------------------------------");
+        //System.out.println("Se han creado un total de " + retVal.size() + " Estados sucesores nuevos");
+        //System.out.println("-------------------------------------------------------------------------");
         return retVal;
     }
 }

@@ -1,5 +1,6 @@
 import IA.Red.*;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class EstadoTest implements Cloneable{
@@ -149,33 +150,142 @@ public class EstadoTest implements Cloneable{
      * En caso de no haber sensores disponibles, no se conecta a nada.
      */
     private void generarEstadoCercania() {
+        /*
+        Estrategia: Conectar cada sensor de capacidad 5 al centro más cercano. En caso que los
+        centros aún no estén completos, rellenar con los sensores más cercanos de coste 2 y 1.
+        Para los demás sensores, buscaremos conectarlos a los sensores disponibles que estén
+        posicionados lo más cercano posible a un centro.
+         */
+
         int nSensores = this.sensores.size();
         int nCentros = this.centros.size();
 
-        /*
-        Intentamos conectar a cada sensor a cualquier centro por orden de cercanía.
-         */
-        for (int i = 0; i < nSensores; ++i) {
-            int x = this.sensores.get(i).getCoordX();
-            int y = this.sensores.get(i).getCoordY();
+        //Array que contiene para cada sensor cual es su centro más cercano y la distancia entre ellos.
+        ArrayList<PriorityQueue<Pair<Integer, Double> > > distanciasACentros = new ArrayList<>();
 
-            //Busca por niveles a quién conectarse.
-            int idCentroReceptor = buscarEnTablero(x, y, 'C');
-            if (idCentroReceptor != -1) {
-                conectar(i, idCentroReceptor);
-            }
-            else {
-                int idSensorReceptor = buscarEnTablero(x, y, 'C');
-                if (idSensorReceptor != -1) {
-                    conectar(i, idCentroReceptor);
+        for (int i = 0; i < nSensores; ++i) {
+            PriorityQueue<Pair<Integer, Double> > distancias = new PriorityQueue<>(
+                    (p1, p2) -> {
+                        // Primero comparamos por la distancia (segundo elemento de cada par)
+                        int distComp = Double.compare(p1.getSecond(), p2.getSecond());
+
+                        // Si las distancias son iguales, comparamos por el identificador (primer elemento de cada par)
+                        if (distComp == 0) {
+                            return Integer.compare(p1.getFirst(), p2.getFirst());
+                        }
+                        return distComp;
+                    }
+            );
+            calcularDistanciasACentros(i, distancias);
+            distanciasACentros.add(distancias);
+        }
+
+        //Array que nos dirá en cada momento, que sensores se han conectado.
+        boolean[] sensoresConectados = new boolean[nSensores];
+        Arrays.fill(sensoresConectados, false);
+
+        //Conectamos sensores de capacidad 5 a sus centros. Sabemos que los sensores de capacidad 5 son aquellos cuyo ID%3 = 2.
+        for (int i = 2; i < nSensores; i += 3) {
+            PriorityQueue<Pair<Integer, Double> > distancias = distanciasACentros.get(i);
+            boolean found = false;
+            while (!found) {
+                if (!distancias.isEmpty()) {
+                    Pair<Integer, Double> sensorMasCercano = distancias.poll();
+                    int centroID = sensorMasCercano.getFirst();
+                    if (centroID == -1)
+                        continue;
+                    if (centroEsValido(centroID)) {
+                        conectar(i, centroID);
+                        actualizarCapacidad(centroID);
+                        sensoresConectados[i] = true;
+                        found = true;
+                    }
+                    sensorMasCercano = distanciasACentros.get(i).poll();
+                }
+                else {
+                    int x = this.sensores.get(i).getCoordX();
+                    int y = this.sensores.get(i).getCoordY();
+                    //Buscamos el sensor o centro válido más cercano para conectarnos.
+                    int centroID = buscarEnTablero(x, y, 'T');
+                    if (centroID != -1) {
+                        conectar(i, centroID);
+                        actualizarCapacidad(centroID);
+                        sensoresConectados[i] = true;
+                    }
+                    found = true;
                 }
             }
         }
-        actualizarCapacidades();
+
+        //Ahora conectaremos sensores de coste 1 y 2 según la estrategia explicada anteriormente.
+        for (int i = 0; i < nSensores; ++i) {
+            if (i % 3 == 2)
+                continue;
+            PriorityQueue<Pair<Integer, Double> > distancias = distanciasACentros.get(i);
+            Pair<Integer, Double> sensorMasCercano = distancias.poll();
+            int centroID = sensorMasCercano.getFirst();
+            double distancia = sensorMasCercano.getSecond();
+            if (centroID == -1)
+                continue;
+            if (centroEsValido(centroID)) {
+                conectar(i, centroID);
+                actualizarCapacidad(centroID);
+                sensoresConectados[i] = true;
+            }
+            //El centro más cercano no está disponible. Intentamos conectarnos al sensor válido más cercano a un centro.
+            else {
+                int id = buscarEnTablero(this.sensores.get(i).getCoordX(), this.sensores.get(i).getCoordY(), 'T');
+                conectar(i, id);
+                actualizarCapacidad(id);
+            }
+        }
     }
 
     private void generarEstadoAleatorio() {
+        Random rand = new Random();
 
+        for (int i = 0; i < sensores.size(); i++) {
+            int centroId = sensores.size() + rand.nextInt(centros.size());
+            if (centroEsValido(centroId)) {
+                conectar(i, centroId);
+                actualizarCapacidad(centroId);
+            } else {
+                //si no hay un centro valido me conecto a un sensor random pero tengo que mirar que sea válido y que no sea el mismo
+                //sensor porque no me puedo conectar a mi mismo
+                int intentos = 0; //evitamos quedarnos en un bucle infinito
+                int sensorId = rand.nextInt(sensores.size());
+                while ((!centroEsValido(sensorId) || sensorId == i) && intentos < sensores.size()) {
+                    sensorId = rand.nextInt(sensores.size());
+                    ++intentos;
+                }
+                if (intentos == sensores.size()) {
+                    System.out.println("Advertencia: No se encontró conexión válida para el sensor " + i);
+                    continue;
+                }
+                conectar(i, sensorId);
+                actualizarCapacidad(sensorId);
+            }
+
+        }
+    }
+
+    private void calcularDistanciasACentros(int ID, PriorityQueue<Pair<Integer, Double> > distancias) {
+        for (int i = 0; i < this.centros.size(); ++i) {
+            double distancia = dist(ID, i, true);
+            distancias.add(new Pair<Integer, Double>(i + this.sensores.size(), distancia));
+        }
+    }
+
+    private int SensorDistanciaMinima(ArrayList<Pair<Integer, Double> > distancias, boolean[] sensoresComprobados) {
+        double minDist = Double.POSITIVE_INFINITY;
+        int minID = -1;
+        for (int i = 0; i < sensores.size(); ++i) {
+            if (distancias.get(i).second < minDist && !sensoresComprobados[i]) {
+                minDist = distancias.get(i).second;
+                minID = i;
+            }
+        }
+        return minID;
     }
 
     /**
@@ -183,6 +293,7 @@ public class EstadoTest implements Cloneable{
      * @param posY es la posición Y del sensor transmisor en el tablero
      * @param objetivo Si es 'C', se buscará el centro VÁLIDO más cercano.
      *                 En caso que sea 'S' se busca el sensor VÁLIDO más cercano.
+     *                 En caso que sea 'T' se busca el sensor o centro VÁLIDO más cercano
      * @return el ID de el objetivo encontrado. -1 en caso de no haber encontrado a ninguno.
      */
     private int buscarEnTablero(int posX, int posY, char objetivo) {
@@ -205,11 +316,12 @@ public class EstadoTest implements Cloneable{
 
             int ID = tablero[posX][posY];
             if (ID != -1) {
-                if (objetivo == 'C') {
+                if (objetivo == 'C' || objetivo == 'T') {
                     if (es_centro(ID) && centroEsValido(ID)) {
                         return ID;
                     }
-                } else if (objetivo == 'S') {
+                }
+                if (objetivo == 'S' || objetivo == 'T') {
                     if (es_sensor(ID) && sensorEsValido(ID)) {
                         return ID;
                     }
@@ -248,7 +360,7 @@ public class EstadoTest implements Cloneable{
         // Verificar si centroId está indirectamente conectado a un centro
         boolean conectadoConCentro = existeCaminoValido(sensorId);
 
-        return (numeroConexionesActuales < 3 && (maximaCapacidad(sensorId) - informacionRecibida) > 0) && conectadoConCentro;
+        return (numeroConexionesActuales < 3 && (capacidadesIniciales[sensorId % 3] * 2 - informacionRecibida) > 0) && conectadoConCentro;
     }
 
     private boolean centroEsValido(int centroId) {
@@ -258,18 +370,16 @@ public class EstadoTest implements Cloneable{
         // Verificar restricción datos recibidos simultaneamente
         double informacionRecibida = calcularInformacionRecibida(centroId);
 
-        return (numeroConexionesActuales < 25 && (maximaCapacidad(centroId) - informacionRecibida) > 0);
+        return (numeroConexionesActuales < 25 && (150 - informacionRecibida) > 0);
     }
 
     private double calcularInformacionRecibida(int IDElemento) {
         double cantidadInformacionRecibida = 0;
         int nElementosConectados = this.quienMeTransmite.get(IDElemento).size();
-        if (nElementosConectados > 0) {
-            for (int i = 0; i < nElementosConectados; i++) {
-                int elementoConectado = this.quienMeTransmite.get(IDElemento).get(i);
-                double informacionTransmitida = capacidadesIniciales[elementoConectado % 3];
-                cantidadInformacionRecibida += (calcularInformacionRecibida(elementoConectado) + informacionTransmitida);
-            }
+        for (int i = 0; i < nElementosConectados; i++) {
+            int elementoConectado = this.quienMeTransmite.get(IDElemento).get(i);
+            double informacionTransmitida = capacidadesIniciales[elementoConectado % 3];
+            cantidadInformacionRecibida += (calcularInformacionRecibida(elementoConectado) + informacionTransmitida);
         }
         return Math.min(maximaCapacidad(IDElemento), cantidadInformacionRecibida);
     }
@@ -334,8 +444,8 @@ public class EstadoTest implements Cloneable{
         }
         double informacionRecibida = calcularInformacionRecibida(ID);
         double nuevaCapacidad = Math.max(0, cantidadMaximaReceptora - informacionRecibida);
-        System.out.println("Actualizada la capacidad restante de " + ID + ":");
-        System.out.println("Nueva Capacidad: " + nuevaCapacidad);
+        //System.out.println("Actualizada la capacidad restante de " + ID + ":");
+        //System.out.println("Nueva Capacidad: " + nuevaCapacidad);
         capacidadRestante[ID] = nuevaCapacidad;
     }
 
@@ -366,20 +476,20 @@ public class EstadoTest implements Cloneable{
 
     public boolean swap(int ID1, int ID2) {
         if (es_centro(ID1) || es_centro(ID2)) {
-            System.out.println("No se ha podido realizar la operacion: SWAP (" + ID1 + " -> " + ID2 + ") debido a que uno de los IDs pertenece a un centro");
+            //System.out.println("No se ha podido realizar la operacion: SWAP (" + ID1 + " -> " + ID2 + ") debido a que uno de los IDs pertenece a un centro");
             System.out.println();
             return false;
         }
         int conexionID1 = aQuienTransmito[ID1];
         int conexionID2 = aQuienTransmito[ID2];
         if (conexionID1 == -1 || conexionID2 == -1) {
-            System.out.println("No se ha podido realizar la operacion: SWAP (" + ID1 + " -> " + ID2 + ") debido a que uno de los dos IDs no está conectado a nada");
-            System.out.println();
+            //System.out.println("No se ha podido realizar la operacion: SWAP (" + ID1 + " -> " + ID2 + ") debido a que uno de los dos IDs no está conectado a nada");
+            //System.out.println();
             return false;
         }
         if (conexionID1 == conexionID2) {
-            System.out.println("No se ha podido realizar la operacion: SWAP (" + ID1 + " -> " + ID2 + ") debido a que los dos sensores están conectados a lo mismo");
-            System.out.println();
+            //System.out.println("No se ha podido realizar la operacion: SWAP (" + ID1 + " -> " + ID2 + ") debido a que los dos sensores están conectados a lo mismo");
+            //System.out.println();
             return false;
         }
 
@@ -415,8 +525,8 @@ public class EstadoTest implements Cloneable{
     public boolean moverConexion(int ID, int nuevoDestino) {
         int antiguoDestino = aQuienTransmito[ID];
         if (es_centro(ID)) {
-            System.out.println("No se ha podido realizar la operacion: moverConexion (" + ID + " -> " + nuevoDestino + ") debido a que uno de los IDs pertenece a un centro");
-            System.out.println();
+            //System.out.println("No se ha podido realizar la operacion: moverConexion (" + ID + " -> " + nuevoDestino + ") debido a que uno de los IDs pertenece a un centro");
+            //System.out.println();
             return false;
         }
         desconectar(ID);
@@ -487,10 +597,12 @@ public class EstadoTest implements Cloneable{
         for (int i = 0; i < aQuienTransmito.length; i++) {
             if (aQuienTransmito[i] != -1) { // Si el sensor i tiene conexión
                 double distancia;
-                if(es_centro(aQuienTransmito[i])) distancia = dist(i, aQuienTransmito[i]-sensores.size(),true );
-                else distancia = dist(i, aQuienTransmito[i],false );
-
-
+                if (es_centro(aQuienTransmito[i])) {
+                    distancia = dist(i, aQuienTransmito[i]-sensores.size(),true );
+                }
+                else {
+                    distancia = dist(i, aQuienTransmito[i],false);
+                }
                 double volumenCapturado = sensores.get(i).getCapacidad();
                 //System.out.println();
                 //System.out.println("sensord con id = " + i + " envia " + sensores.get(i).getCapacidad() + " a al id " + aQuienTransmito[i]);
