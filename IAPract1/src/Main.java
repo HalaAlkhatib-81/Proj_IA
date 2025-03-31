@@ -156,7 +156,7 @@ public class Main {
             SearchAgent agent = new SearchAgent(p, search);
 
             imprimirResultados(agent);
-            Estado solucion = (Estado) search.getGoalState();
+            EstadoTest solucion = (EstadoTest) search.getGoalState();
             System.out.println("\nSolución Final: " + solucion);
         } catch (Exception e) {
             e.printStackTrace();

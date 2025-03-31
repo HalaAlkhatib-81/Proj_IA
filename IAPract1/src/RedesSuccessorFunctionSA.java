@@ -12,42 +12,44 @@ public class RedesSuccessorFunctionSA implements SuccessorFunction{
         int nsensores = hijo.getSensores().size();
         int ncentros = hijo.getCentros().size();
 
-        int factorRamificacionMoverConexion = nsensores*ncentros;
-        int factorRamificacionSwap = nsensores*nsensores;
-        int factorRamificacionTotal = factorRamificacionMoverConexion + factorRamificacionSwap;
-
-        int numRand = random.nextInt(factorRamificacionTotal);
-        EstadoTest newState = new EstadoTest(nsensores, ncentros);
-        if (numRand < factorRamificacionMoverConexion) { //operador1
-            int sensorRandom = random.nextInt(nsensores);
-            int nodoRandom = random.nextInt(nsensores + ncentros);
-            while (!newState.moverConexion(sensorRandom, nodoRandom)) {
-                sensorRandom = random.nextInt(nsensores);
-                nodoRandom = random.nextInt(nsensores + ncentros);
-                newState = new EstadoTest(hijo.getSensores(), hijo.getCentros(), hijo.getReceptores(),
-                        hijo.getCapacidadRestante(), hijo.getTransmisores(), hijo.getTablero(), hijo.getCoste(), hijo.getInfo());
+        int operacionElegida = random.nextInt(2);
+        int element = random.nextInt(nsensores);
+        EstadoTest newState = hijo.clone();
+        //SWAP
+        if (operacionElegida == 0) {
+            ArrayList<Integer> posiblesSensores = new ArrayList();
+            for (int i = 0; i < nsensores; i++) {
+                posiblesSensores.add(i);
             }
-            String S;
-            if (nodoRandom >= nsensores) {
-                S = ("MOVIDA conexión: " + sensorRandom + " al centro: " + (nodoRandom - nsensores) + " | " + newState.toString() + "\n");
+            boolean found = false;
+            while (!found && posiblesSensores.size() > 0) {
+                int nextElementIt = random.nextInt(posiblesSensores.size());
+                int nextElement = posiblesSensores.get(nextElementIt);
+                posiblesSensores.remove(nextElementIt);
+                if (newState.swap(element, nextElement)) {
+                    String S = ("INTERCAMBIO " + " " + element + " " + nextElement + " | " + newState.toString() + "\n");
+                    retVal.add(new Successor(S, newState));
+                    found = true;
+                }
             }
-            else {
-                S = ("MOVIDA conexión: " + sensorRandom + " al sensor: " + nodoRandom + " | " + newState.toString() + "\n");
-            }
-            retVal.add(new Successor(S, newState));
         }
-
-        else { //operador2
-            int sensorRandom1 = random.nextInt(nsensores);
-            int sensorRandom2 = random.nextInt(nsensores);
-            while (!newState.swap(sensorRandom1, sensorRandom2)) {
-                sensorRandom1 = random.nextInt(nsensores);
-                sensorRandom2 = random.nextInt(nsensores);
-                newState = new EstadoTest(hijo.getSensores(), hijo.getCentros(), hijo.getReceptores(),
-                        hijo.getCapacidadRestante(), hijo.getTransmisores(), hijo.getTablero(), hijo.getCoste(), hijo.getInfo());            }
-            String S;
-            S = ("INTERCAMBIO " + " " + sensorRandom1 + " " + sensorRandom2 + " | " + newState.toString() + "\n");
-            retVal.add(new Successor(S, newState));
+        //MOVE
+        else {
+            ArrayList<Integer> posiblesSensores = new ArrayList();
+            for (int i = 0; i < nsensores + ncentros; i++) {
+                posiblesSensores.add(i);
+            }
+            boolean found = false;
+            while (!found && posiblesSensores.size() > 0) {
+                int nextElementIt = random.nextInt(posiblesSensores.size());
+                int nextElement = posiblesSensores.get(nextElementIt);
+                posiblesSensores.remove(nextElementIt);
+                if (newState.moverConexion(element, nextElement)) {
+                    String S = ("INTERCAMBIO " + " " + element + " " + nextElement + " | " + newState.toString() + "\n");
+                    retVal.add(new Successor(S, newState));
+                    found = true;
+                }
+            }
         }
         return retVal;
     }

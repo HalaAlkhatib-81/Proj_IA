@@ -379,7 +379,7 @@ public class EstadoTest implements Cloneable{
         return centroId >= sensores.size() && centroId < sensores.size()+centros.size();
     }
 
-    private boolean sensorEsValido(int sensorId) {
+    public boolean sensorEsValido(int sensorId) {
         // Verificar restricción conexiones simultáneas
         int numeroConexionesActuales = this.quienMeTransmite.get(sensorId).size();
 
@@ -391,7 +391,7 @@ public class EstadoTest implements Cloneable{
         return (numeroConexionesActuales < 3 && (capacidadesIniciales[sensorId % 3] * 2 - informacionRecibida) > 0) && conectadoConCentro;
     }
 
-    private boolean centroEsValido(int centroId) {
+    public boolean centroEsValido(int centroId) {
         // Verificar restricción conexiones simultáneas
         int numeroConexionesActuales = this.quienMeTransmite.get(centroId).size();
 
@@ -481,10 +481,13 @@ public class EstadoTest implements Cloneable{
         if (es_centro(ID1)) {
             System.out.println("No se ha podido llevar a cabo la operación: conectar (" + ID1 + " -> " + ID2 + ") debido a que " + ID1 + "es un centro");
         }
-        this.aQuienTransmito[ID1] = ID2;
-        //El elemento no está en el Array
-        if (!this.quienMeTransmite.get(ID2).contains(ID1)){
-            this.quienMeTransmite.get(ID2).add(ID1);
+        else {
+            this.aQuienTransmito[ID1] = ID2;
+            //El elemento no está en el Array
+            System.out.println("!this.quienMeTransmite.get(" + ID2 + ").contains(" + ID1 + ")");
+            if (!this.quienMeTransmite.get(ID2).contains(ID1)) {
+                this.quienMeTransmite.get(ID2).add(ID1);
+            }
         }
     }
 
@@ -502,10 +505,19 @@ public class EstadoTest implements Cloneable{
             }
     }
 
+    public ArrayList<Integer> getSensoresSinTransmitir() {
+        ArrayList<Integer> conexiones = new ArrayList();
+        for (int i = 0; i < aQuienTransmito.length; i++) {
+            if (aQuienTransmito[i] == -1)
+                conexiones.add(aQuienTransmito[i]);
+        }
+        return conexiones;
+    }
+
     public boolean swap(int ID1, int ID2) {
         if (es_centro(ID1) || es_centro(ID2)) {
             //System.out.println("No se ha podido realizar la operacion: SWAP (" + ID1 + " -> " + ID2 + ") debido a que uno de los IDs pertenece a un centro");
-            System.out.println();
+            //System.out.println();
             return false;
         }
         int conexionID1 = aQuienTransmito[ID1];

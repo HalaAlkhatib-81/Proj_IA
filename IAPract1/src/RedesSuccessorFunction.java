@@ -84,8 +84,6 @@ public class RedesSuccessorFunction implements SuccessorFunction{
         int t;
         for (int i = 0; i < nSensores; i++) {
             for (int j = i + 1; j < nSensores + nCentros; ++j) { // Puede ser otro sensor o un centro// No puede moverse a sí mismo
-                if(i == 1 && j == 2)
-                    t = 0;
                 EstadoTest newState = estadoActual.clone();
                 //System.out.println("Intentando aplicar operación: MOVE (" + i + " -> " + j + ")");
                 if (newState.moverConexion(i, j)) {
