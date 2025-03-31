@@ -99,6 +99,34 @@ public class EstadoTest implements Cloneable{
         this.tablero = tablero;
     }
 
+    public Sensores getSensores(){
+        return sensores;
+    }
+    public CentrosDatos getCentros(){
+        return centros;
+    }
+    public int[] getReceptores(){
+        return aQuienTransmito;
+    }
+    public double[] getCapacidadRestante(){
+        return capacidadRestante;
+    }
+
+    public int[][] getTablero(){
+        return tablero;
+    }
+
+    public ArrayList<ArrayList<Integer>> getTransmisores(){
+        return quienMeTransmite;
+    }
+    public double getCoste(){
+        return coste;
+    }
+
+    public double getInfo(){
+        return info;
+    }
+
     /**
      * Clone
      */

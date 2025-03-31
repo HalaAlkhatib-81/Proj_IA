@@ -7,24 +7,25 @@ import java.util.*;
 public class RedesSuccessorFunctionSA implements SuccessorFunction{
     public List<Successor> getSuccessors(Object a) {
         ArrayList<Successor> retVal = new ArrayList();
-        Estado hijo = (Estado) a;
+        EstadoTest hijo = (EstadoTest) a;
         Random random = new Random();
-        int nsensores = hijo.sensor.size();
-        int ncentros = hijo.centros.size();
+        int nsensores = hijo.getSensores().size();
+        int ncentros = hijo.getCentros().size();
 
         int factorRamificacionMoverConexion = nsensores*ncentros;
         int factorRamificacionSwap = nsensores*nsensores;
         int factorRamificacionTotal = factorRamificacionMoverConexion + factorRamificacionSwap;
 
         int numRand = random.nextInt(factorRamificacionTotal);
-        Estado newState = new Estado(hijo);
+        EstadoTest newState = new EstadoTest(nsensores, ncentros);
         if (numRand < factorRamificacionMoverConexion) { //operador1
             int sensorRandom = random.nextInt(nsensores);
             int nodoRandom = random.nextInt(nsensores + ncentros);
             while (!newState.moverConexion(sensorRandom, nodoRandom)) {
                 sensorRandom = random.nextInt(nsensores);
                 nodoRandom = random.nextInt(nsensores + ncentros);
-                newState = new Estado(hijo);
+                newState = new EstadoTest(hijo.getSensores(), hijo.getCentros(), hijo.getReceptores(),
+                        hijo.getCapacidadRestante(), hijo.getTransmisores(), hijo.getTablero(), hijo.getCoste(), hijo.getInfo());
             }
             String S;
             if (nodoRandom >= nsensores) {
@@ -42,8 +43,8 @@ public class RedesSuccessorFunctionSA implements SuccessorFunction{
             while (!newState.swap(sensorRandom1, sensorRandom2)) {
                 sensorRandom1 = random.nextInt(nsensores);
                 sensorRandom2 = random.nextInt(nsensores);
-                newState = new Estado(hijo);
-            }
+                newState = new EstadoTest(hijo.getSensores(), hijo.getCentros(), hijo.getReceptores(),
+                        hijo.getCapacidadRestante(), hijo.getTransmisores(), hijo.getTablero(), hijo.getCoste(), hijo.getInfo());            }
             String S;
             S = ("INTERCAMBIO " + " " + sensorRandom1 + " " + sensorRandom2 + " | " + newState.toString() + "\n");
             retVal.add(new Successor(S, newState));

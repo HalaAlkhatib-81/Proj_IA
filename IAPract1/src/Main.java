@@ -119,7 +119,7 @@ public class Main {
         if (hC) {
             ejecutarHillClimbing(estadoInicialTest);
         } else {
-            ejecutarSimulatedAnnealing(estadoInicial, steps, stiter, k, lambda);
+            ejecutarSimulatedAnnealing(estadoInicialTest, steps, stiter, k, lambda);
         }
 
         long endTime = System.nanoTime();
@@ -145,7 +145,7 @@ public class Main {
         }
     }
 
-    private static void ejecutarSimulatedAnnealing(Estado es, int steps, int stiter, int k, double lambda) {
+    private static void ejecutarSimulatedAnnealing(EstadoTest es, int steps, int stiter, int k, double lambda) {
         System.out.println("\nEjecutando Simulated Annealing...");
         try {
             RedesSuccessorFunctionSA successorFunction = new RedesSuccessorFunctionSA();
