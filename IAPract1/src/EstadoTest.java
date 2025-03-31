@@ -3,6 +3,18 @@ import IA.Red.*;
 import java.lang.reflect.Array;
 import java.util.*;
 
+/**
+ * Class Name: EstadoTest
+ *
+ * Description:
+ Es la clase que da estructura al planteamiento inicial del problema.
+ En esta clase se implementan todos los elementos, métodos y operadores
+ necesarios y esenciales para generar los estados en los que se basarán los experimentos futuros.
+ *
+ * @author Grup_IA
+ * @version 1.0
+ */
+
 public class EstadoTest implements Cloneable{
     /* ===================== ATRIBUTOS ===================== */
 
@@ -35,6 +47,9 @@ public class EstadoTest implements Cloneable{
      *
      * Da todos los atributos de la clase inicializados correctamente
      * en base a el número de sensores y de centros y junto a las semillas.
+     *
+     * @param nSensores  numero de sensores
+     * @param nCentros numero de centros
      */
     public EstadoTest(int nSensores, int nCentros) {
         //System.out.println("Constructora Básica");
@@ -85,6 +100,14 @@ public class EstadoTest implements Cloneable{
      *
      * Se asume que las variables pasadas como parámetros han sido previamente
      * inicializadas correctamente. Se hacen Shallow Copys de los parámetros.
+     * @param s sensores existentes
+     * @param c centros existentes
+     * @param receptores para toda posición i, el nodo al cual envia un sensor de id i
+     * @param cRestante capacidad restante de sensores y centros
+     * @param transmisores para toda posición i, los sensores conectados al nodo i
+     * @param tablero representación del tablero
+     * @param coste coste total del estado
+     * @param info información transmitida del estado
      */
     public EstadoTest(Sensores s, CentrosDatos c, int[] receptores, double[] cRestante,
                       ArrayList<ArrayList<Integer>> transmisores, int[][] tablero,
@@ -99,36 +122,74 @@ public class EstadoTest implements Cloneable{
         this.tablero = tablero;
     }
 
+    /* ===================== GETTERS ===================== */
+
+    /**
+     * Metodo getter sensores
+     * @return sensores existentes
+     */
     public Sensores getSensores(){
         return sensores;
     }
+
+    /**
+     * Metodo getter centros
+     * @return centros existentes
+     */
     public CentrosDatos getCentros(){
         return centros;
     }
+
+    /**
+     * Metodo getter receptores
+     * @return nodos a los cuales transmite cada sensor
+     */
     public int[] getReceptores(){
         return aQuienTransmito;
     }
+
+    /**
+     * Metodo getter capacidad restante
+     * @return capacidad restante de todos los nodos
+     */
     public double[] getCapacidadRestante(){
         return capacidadRestante;
     }
 
+    /**
+     * Metodo getter tablero
+     * @return tablero
+     */
     public int[][] getTablero(){
         return tablero;
     }
 
+    /**
+     * Metodo getter transmissores
+     * @return sensores que transmiten a todos los nodos
+     */
     public ArrayList<ArrayList<Integer>> getTransmisores(){
         return quienMeTransmite;
     }
+
+    /**
+     * Metodo getter coste
+     * @return coste total del estado
+     */
     public double getCoste(){
         return coste;
     }
 
+    /**
+     * Metodo getter info
+     * @return info total transmitida
+     */
     public double getInfo(){
         return info;
     }
 
     /**
-     * Clone
+     * Clona estado
      */
     @Override
     public EstadoTest clone() {
@@ -150,8 +211,11 @@ public class EstadoTest implements Cloneable{
         double newCoste = this.coste;
         double newInfo = this.info;
         return new EstadoTest(newSensores, newCentros, newAQuienTransmito, newCapacidadRestante,
-                              newQuienMeTransmite, newTablero, newCoste, newInfo);
+                newQuienMeTransmite, newTablero, newCoste, newInfo);
     }
+
+    /* ===================== GENERACIÓN DE ESTADOS INICIALES ===================== */
+
 
     /**
      * Genera un estado inicial a partir de la estrategia seleccionada por el usuario:
@@ -160,6 +224,8 @@ public class EstadoTest implements Cloneable{
      * En caso que no haya ni centros ni sensores disponibles, se queda sin transmitir a nadie.
      *
      * else Se genera un estado a partir de eventos aleatorios.
+     *
+     * @param greedy determina si queremos generar el estado inicial aleatoriamente o por cercanias
      */
     public void generarEstadoInicial(boolean greedy) {
         if (greedy) {
@@ -176,6 +242,7 @@ public class EstadoTest implements Cloneable{
      *
      * Si no hay centros disponibles, Intenta conectarse al sensor disponible más cercano.
      * En caso de no haber sensores disponibles, no se conecta a nada.
+     *
      */
     private void generarEstadoCercania() {
         /*
@@ -269,6 +336,13 @@ public class EstadoTest implements Cloneable{
         }
     }
 
+
+    /**
+     * Se genera un estado usando la estrategia aleatoria.
+     * se conectan todos los sensores de forma aleatoria, pero asegurandonos de seguir las
+     * restricciones.
+     */
+
     private void generarEstadoAleatorio() {
         Random rand = new Random();
 
@@ -297,6 +371,16 @@ public class EstadoTest implements Cloneable{
         }
     }
 
+
+
+    /**
+     *Función que calcula la distancia de un sensor con id ID de cada uno de los centros,
+     * clasificandolos según su cercania. Esta función nos sirve para determinar que centro
+     * es el más cercano a cada sensor.
+     *
+     * @param ID id del sensor
+     * @param distancias cola prioritaria donde colocamos el id del centro y la distancia entre él y ID. Se ordena segun el valor de la distancia.
+     */
     private void calcularDistanciasACentros(int ID, PriorityQueue<Pair<Integer, Double> > distancias) {
         for (int i = 0; i < this.centros.size(); ++i) {
             double distancia = dist(ID, i, true);
@@ -323,6 +407,7 @@ public class EstadoTest implements Cloneable{
      *                 En caso que sea 'S' se busca el sensor VÁLIDO más cercano.
      *                 En caso que sea 'T' se busca el sensor o centro VÁLIDO más cercano
      * @return el ID de el objetivo encontrado. -1 en caso de no haber encontrado a ninguno.
+     * Esta función la usamos en el generador por cercania para encontrar centros o sensores cercanos
      */
     private int buscarEnTablero(int posX, int posY, char objetivo) {
         boolean[][] visitado = new boolean[100][100];
@@ -371,14 +456,42 @@ public class EstadoTest implements Cloneable{
 
 
     /* ===================== VERIFICACIONES Y UTILIDADES ===================== */
+
+    /**
+     * funcion usada para comprobar si un nodo con una id determinada es un sensor.
+     * Si el id es mayor o igual a 0 y menos al tamaño de la lista de sensores,
+     * es un id de sensor.
+     *
+     * @param sensorId id del sensor potencial
+     * @return booleano que indica si el nodo con id sensorId es un sensor
+     */
     private boolean es_sensor(int sensorId) {
         return sensorId >= 0 && sensorId < sensores.size();
     }
 
+    /**
+     * funcion usada para comprobar si un nodo con una id determinada es un centro
+     * Si el id es mayor o igual al tamaño de la lista de sensores (ya que los ids de los centros
+     * comienzan desde el valor sensores.size()) y menor a la suma de tamaño de las listas
+     * de sensores y centros, es un id de centro.
+     *
+     * @param centroId id del centro potencial
+     * @return booleano que indica si el nodo con id centroId es un centro
+     */
     private boolean es_centro(int centroId) {
         return centroId >= sensores.size() && centroId < sensores.size()+centros.size();
     }
 
+    /**
+     * Función usada para comprobar si un nodo con un id determinada es un sensor válido.
+     * Primero, se mira el número de conexiones actuales a sensorId (tiene que ser menor a 3).
+     * Además se mira la información recibida total del sensor y comprueba que la capacidad de
+     * este sensor es suficiente (siendo la capacidad el doble de 1, 2, o 5 Mb/s).
+     * Además, comprueba si está conectado a un centro (mirando si existe un camino válido para que eso ocurra).
+     *
+     * @param sensorId id del sensor del cual queremos comprobar la validez
+     * @return booleano que indica si el nodo con id sensorId es un sensor válido
+     */
     private boolean sensorEsValido(int sensorId) {
         // Verificar restricción conexiones simultáneas
         int numeroConexionesActuales = this.quienMeTransmite.get(sensorId).size();
@@ -391,6 +504,14 @@ public class EstadoTest implements Cloneable{
         return (numeroConexionesActuales < 3 && (capacidadesIniciales[sensorId % 3] * 2 - informacionRecibida) > 0) && conectadoConCentro;
     }
 
+    /**
+     * Función usada para comprobar si un nodo con un id determinado es un centro válido.
+     * Primero, se mira el número de conexiones actuales a sensorId (tiene que ser menor a 25).
+     * Además, que no recibe más de 150 Mb/s
+     *
+     * @param centroId id del centro del cual queremos comprobar la validez
+     * @return booleano que indica si el nodo con id centroId es un centro válido
+     */
     private boolean centroEsValido(int centroId) {
         // Verificar restricción conexiones simultáneas
         int numeroConexionesActuales = this.quienMeTransmite.get(centroId).size();
@@ -400,6 +521,15 @@ public class EstadoTest implements Cloneable{
 
         return (numeroConexionesActuales < 25 && (150 - informacionRecibida) > 0);
     }
+
+    /**
+     * Función usada calcular la información que recibe cierto elemento. Se recorren todos los elementos que
+     * transmiten al nodo en cuestion y se suman a una variable. A continuación, la información recibida será
+     * el minimo entre esa suma y la capacidad maxima del elemento, ya que no se debe superar
+     *
+     * @param IDElemento id del centro/sensor del cual queremos calcular la información que recibe
+     * @return la cantidad de info recibida.
+     */
 
     private double calcularInformacionRecibida(int IDElemento) {
         double cantidadInformacionRecibida = 0;
@@ -412,6 +542,14 @@ public class EstadoTest implements Cloneable{
         return Math.min(maximaCapacidad(IDElemento), cantidadInformacionRecibida);
     }
 
+    /**
+     * Función usada para calcular la maxima capacidad de un elemento. Puede ser 2, 4, 6.
+     * asignamos 1, 2 y 5 succesivamente a los IDs de los sensores según el modulo 3 de su id.
+     * En caso de los centros siempre será 150.
+     *
+     * @param ID id del centro/sensor del cual queremos saber la maxima capacidad
+     * @return double con la capacidad maxima
+     */
     private double maximaCapacidad(int ID) {
         if (es_centro(ID))
             return (double) 150;
@@ -419,12 +557,29 @@ public class EstadoTest implements Cloneable{
             return (capacidadesIniciales[ID%3] * 2);
     }
 
+
+    /**
+     * Función usada para comprobar si existe un camino valido para un sensor. Miramos si
+     * se puede conectar a un centro.
+     *
+     * @param ID id del sensor del cual queremos saber si tenemos un camino valido
+     * @return booleano que indica si hay un camino valido
+     */
     private boolean existeCaminoValido(int ID) {
         boolean[] visitado = new boolean[this.sensores.size()];
         Arrays.fill(visitado, false);
         return conexionACentro(ID, visitado);
     }
 
+
+    /**
+     * Función usada para comprobar si se puede conectar un sensor a un centro (directa o
+     * indirectamente)
+     *
+     * @param ID id del sensor del cual queremos saber si podemos conectarlo a un centro
+     * @param visitado lista de booleanos donde guardamos si nuestro sensor se puede conectar a un centro en la posicion correspondiente.
+     * @return booleano que indica si se puede conectar a un centro
+     */
     private boolean conexionACentro(int ID, boolean[] visitado) {
         if(es_centro(ID)) return true;
         if (es_centro(aQuienTransmito[ID])) return true;
@@ -434,6 +589,15 @@ public class EstadoTest implements Cloneable{
         return conexionACentro(aQuienTransmito[ID], visitado);
     }
 
+
+    /**
+     * Función usada para calcular la distancia entre 2 elementos
+     *
+     * @param id1 id del primer elemento
+     * @param id2 id del segundo elemento
+     * @param esCentro booleano que indica si id2 es un centro
+     * @return distancia entre id1 y id2
+     */
     private double dist(int id1, int id2, boolean esCentro) {
         double x1, y1, x2, y2;
 
@@ -453,16 +617,35 @@ public class EstadoTest implements Cloneable{
         return Math.sqrt((Math.pow(x1-x2, 2)) + (Math.pow(y1-y2,2)));
     }
 
+    /**
+     * Función usada para comprobar si cierta posición es valida, sin superar el tablero de 100x100
+     *
+     * @param x coordenada x de cierto elemento
+     * @param y coordenada y de cierto elemento
+     * @return booleano que indica si la posicion (x,y) es valida
+     */
     private boolean pos_valida(int x, int y) {
         return x < 100 && x >= 0 && y < 100 && y >= 0;
     }
 
+    /**
+     * Función usada para actualizar todas las capacidades haciendo un recorrido por ellas
+     *
+     */
     public void actualizarCapacidades() {
         for (int i = 0; i < capacidadRestante.length; i++) {
             actualizarCapacidad(i);
         }
     }
 
+
+    /**
+     * Función usada para modificar su capacidad. La usamos al conectar un sensor a otro sensor o un centro
+     * la capacidad sera el maximo entre 0 y la cantidad maxima receptora menos la información recibida,
+     * que calculamos usando la función correspondiente
+     *
+     * @param ID id del elemento a actualizar (puede ser un sensor o un centro)
+     */
     public void actualizarCapacidad(int ID) {
         double cantidadMaximaReceptora;
         if (es_centro(ID)) {
@@ -477,6 +660,13 @@ public class EstadoTest implements Cloneable{
         capacidadRestante[ID] = nuevaCapacidad;
     }
 
+    /**
+     * Función usada para conectar un sensor a otro sensor o un centro, comprobando siempre las restricciones
+     * usando los metodos pertinentes
+     *
+     * @param ID1 id del sensor a conectar (si ID1 es un centro, no llevamos a cabo la operación)
+     * @param ID2 id del elemento al cual queremos conectar ID1
+     */
     private void conectar(int ID1, int ID2) {
         if (es_centro(ID1)) {
             System.out.println("No se ha podido llevar a cabo la operación: conectar (" + ID1 + " -> " + ID2 + ") debido a que " + ID1 + "es un centro");
@@ -488,20 +678,34 @@ public class EstadoTest implements Cloneable{
         }
     }
 
+    /**
+     * Función usada para desconectar un sensor, comprobando siempre las restricciones
+     * usando los metodos pertinentes. hacemos los cambios pertinentes en nuestros atributos
+     *
+     * @param ID1 id del sensor a desconectar.
+     */
+
     private void desconectar(int ID1) {
-            int ID2 = this.aQuienTransmito[ID1];
-            if (ID2 != -1) {
-                int indiceID1 = this.quienMeTransmite.get(ID2).indexOf(ID1);
-                if (indiceID1 != -1) {
-                    this.quienMeTransmite.get(ID2).remove(indiceID1);
-                    this.aQuienTransmito[ID1] = -1;
-                }
+        int ID2 = this.aQuienTransmito[ID1];
+        if (ID2 != -1) {
+            int indiceID1 = this.quienMeTransmite.get(ID2).indexOf(ID1);
+            if (indiceID1 != -1) {
+                this.quienMeTransmite.get(ID2).remove(indiceID1);
+                this.aQuienTransmito[ID1] = -1;
             }
-            else {
-                System.out.println("No se ha podido realizar la operacion: desconectar (" + ID1 + " -> " + ID2 + ") debido a que " + ID1 + "no está conectado a nada");
-            }
+        }
+        else {
+            System.out.println("No se ha podido realizar la operacion: desconectar (" + ID1 + " -> " + ID2 + ") debido a que " + ID1 + "no está conectado a nada");
+        }
     }
 
+    /**
+     * Función usada para desconectar un sensor de cierto elemento para conectarlo a otro, comprobando
+     * las restricciones pertinentes (por ejemplo, si alguno de los ids es de un centro, no se realiza la operación)
+     * @param ID1 sensor sobre el cual queremos realizar la operación
+     * @param ID2 sensor sobre el cual queremos realizar la operación.
+     * @return booleano que nos indica si la operación se ha podido realizar con exito
+     */
     public boolean swap(int ID1, int ID2) {
         if (es_centro(ID1) || es_centro(ID2)) {
             //System.out.println("No se ha podido realizar la operacion: SWAP (" + ID1 + " -> " + ID2 + ") debido a que uno de los IDs pertenece a un centro");
@@ -549,6 +753,13 @@ public class EstadoTest implements Cloneable{
         actualizarCapacidad(conexionID2);
         return true;
     }
+    /**
+     * Función usada para desconectar un sensor de cierto elemento para conectarlo a otro, comprobando
+     * las restricciones pertinentes
+     * @param ID sensor sobre el cual queremos realizar la operación (si ID es un centro, no podemos hacer la operación)
+     * @param nuevoDestino elemento al cual queremos conectar ID
+     * @return booleano que nos indica si la operación se ha podido realizar con exito
+     */
 
     public boolean moverConexion(int ID, int nuevoDestino) {
         int antiguoDestino = aQuienTransmito[ID];
@@ -576,10 +787,19 @@ public class EstadoTest implements Cloneable{
         return true;
     }
 
+    /**
+     * funcion getter del numero de sensores
+     * @return total de sensores
+     */
+
     public int getNumeroSensores() {
         return this.sensores.size();
     }
 
+    /**
+     * funcion getter del numero de centros
+     * @return total de centros
+     */
     public int getNumeroCentros() {
         return this.centros.size();
     }
@@ -590,7 +810,11 @@ public class EstadoTest implements Cloneable{
 
     /* ===================== ESTADOS INICIALES ===================== */
 
-    /* esta función genera el estado inicial aleatoriamente */
+
+    /**
+     * Función usada para generar un estado inicial random
+     *
+     */
     public void estado_inicial_random () {
         Random rand = new Random();
         for (int i = 0; i < sensores.size(); i++) {
@@ -617,6 +841,19 @@ public class EstadoTest implements Cloneable{
     }
 
     /* ===================== HEURÍSTICA ===================== */
+
+    /**
+     *Función usada para calcular la heuristica. Recorremos la lista de receptores
+     * comprobando que todos los sensores estén conectados a algún elemento.
+     * Si un sensor i está conectado a un centro, calculamos su distancia con esCentro = true,
+     * si no, esCentro será false. A continuación, cogemos la capacidad del sensor i y la sumamos
+     * al coste total junto a la potencia de 2 de la distancia. A continuación, calculamos la
+     * información real sumando la totalidad de capacidades restantes. Esta totalidad la restamos de
+     * la capacidad acumulada de todos los centros (numero de centros multiplicado por 150).
+     * Finalmente, la heuristica, será el costeTotal, multiplicandole un coeficiente a
+     * y restandole la información transmitida multiplicada por un coeficiente b
+     * @return valor de la heuristica.
+     */
     public double getHeuristica() {
         double costeTotal = 0;
         double inforeal = 0;
@@ -647,6 +884,10 @@ public class EstadoTest implements Cloneable{
         return a*coste - b*info;
     }
 
+
+    /**
+     * Imprimir todas las conexiones actuales
+     */
     public void imprimirConexiones() {
         System.out.println("Conexiones:");
         for (int i = 0; i < this.sensores.size(); ++i) {
@@ -667,6 +908,10 @@ public class EstadoTest implements Cloneable{
         }
     }
 
+    /**
+     * convertimos nuestra información en string
+     * @return String con la información correspondiente
+     */
     @Override
     public String toString() {
         return "Sensores: " + sensores.size() +

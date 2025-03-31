@@ -3,8 +3,22 @@ import IA.Red.Sensores;
 import aima.search.framework.Successor;
 import aima.search.framework.SuccessorFunction;
 import java.util.*;
-
+/**
+ * Class Name: RedesSuccessorFunctionSA
+ *
+ * Description:
+ * Genera los sucesores para ejecutar Simulated Annealing
+ *
+ * @author Grup_IA
+ * @version 1.0
+ */
 public class RedesSuccessorFunctionSA implements SuccessorFunction{
+    /**
+     * Metodo que genera los sucessores para simulated annealing
+     *
+     * @param a estado padre
+     * @return lista de estados hijos
+     */
     public List<Successor> getSuccessors(Object a) {
         ArrayList<Successor> retVal = new ArrayList();
         EstadoTest hijo = (EstadoTest) a;

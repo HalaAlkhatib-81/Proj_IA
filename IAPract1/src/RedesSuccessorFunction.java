@@ -4,6 +4,18 @@ import IA.Red.*;
 
 import java.util.*;
 
+/**
+ * Class Name: RedesSuccessorFunction
+ *
+ * Description:
+ * Genera los sucesores para ejecutar hill climbing
+ *
+ * @author Grup_IA
+ * @version 1.0
+ */
+
+
+
 public class RedesSuccessorFunction implements SuccessorFunction{
     /*
     public List<Successor> getSuccessors(Object a) {
@@ -52,6 +64,13 @@ public class RedesSuccessorFunction implements SuccessorFunction{
     }
     */
 
+
+    /**
+     * Metodo que genera los sucessores para hill climbing
+     *
+     * @param a estado padre
+     * @return lista de estados hijos
+     */
     public List<Successor> getSuccessors(Object a) {
         ArrayList<Successor> retVal = new ArrayList();
         EstadoTest estadoActual = (EstadoTest) a;

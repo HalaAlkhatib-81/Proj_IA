@@ -8,6 +8,12 @@ import IA.Red.*;
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
+
+    /**
+     * Función main donde realizamos las principales funciones de nuestro programa
+     *
+     */
+
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
@@ -80,16 +86,14 @@ public class Main {
         Estado.a = a;
         Estado.b = b;
 
-        /**
-         * Código de Alex: Borrar a partir de aquí:
-         */
+
         //Actualizar las variables static en base al input del usuario
         EstadoTest.a = a;
         EstadoTest.b = b;
         EstadoTest.semillaSensores = semillaSensores;
         EstadoTest.semillaCentros = semillaCentros;
 
-        /**
+        /** *
         Generar estado inicial: si Greedy == True, se genera usando
         la estrategia de cercanía. En caso contrario, se decide el
         próximo paso aleatoriamente.
@@ -110,9 +114,7 @@ public class Main {
         estadoInicialTest.imprimirConexiones();
          */
 
-        /**
-         * Borrar hasta aquí
-         */
+
         Estado estadoInicial = new Estado(greedy, sensors, centros);
 
 
@@ -126,6 +128,11 @@ public class Main {
         System.out.println("Duración del algoritmo: " + (endTime - startTime) / 1000000 + " ms");
     }
 
+    /**
+     * Función usada para ejecutar el hill climbing. Usamos la funcion generadora de sucesores,
+     * la generadora de heuristica, y agentes de busqueda. Después imprimimos el resultado
+     * @param estado estado a partir del cual iniciamos la busqueda
+     * /
     private static void ejecutarHillClimbing(EstadoTest estado) {
         System.out.println("\nEjecutando Hill Climbing...");
         try {
@@ -145,6 +152,12 @@ public class Main {
         }
     }
 
+
+    /**
+     * Función usada para ejecutar el simulated annealing. Usamos la funcion generadora de sucesores,
+     * la generadora de heuristica, y agentes de busqueda. Después imprimimos el resultado
+     * @param estado estado a partir del cual iniciamos la busqueda
+     * /
     private static void ejecutarSimulatedAnnealing(EstadoTest es, int steps, int stiter, int k, double lambda) {
         System.out.println("\nEjecutando Simulated Annealing...");
         try {
@@ -163,6 +176,10 @@ public class Main {
         }
     }
 
+    /**
+     * Función usada para imprimir los resultados en terminal
+     * @param agente de busqueda
+     * /
     private static void imprimirResultados(SearchAgent agent) {
         System.out.println();
         for (Object action : agent.getActions()) {
